@@ -154,13 +154,13 @@
     document.body.removeChild(containerEl);
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('keyup', onKeyUp);
+    chrome.runtime.sendMessage({ close: true });
   }
 }());
 
 /**
   TODO
   - handle disabled elements
-  - only allow to run once
   - banner at top with instructions
   - handle when page is scrolled
   - handle too many focusables
