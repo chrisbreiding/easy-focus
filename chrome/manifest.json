@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+
+  "name": "Easy Focus",
+  "description": "Allows easily focusing on a particular focusable element on the page from the comfort of your keyboard.",
+  "version": "0.1",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "Easy Focus"
+  },
+
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+  },
+
+  "commands": {
+    "easy-focus": {
+      "suggested_key": { "default": "Alt+Shift+F" },
+      "description": "Trigger Easy Focus"
+    }
+  },
+
+  "permissions": ["activeTab"]
+}
