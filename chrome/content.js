@@ -135,7 +135,8 @@
   }
 
   function onKeyDown (e) {
-    e.preventDefault();
+    if (e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (focusables[e.which]) e.preventDefault();
   }
 
   function onKeyUp (e) {
@@ -161,4 +162,6 @@
   - handle disabled elements
   - only allow to run once
   - banner at top with instructions
+  - handle when page is scrolled
+  - handle too many focusables
 */
