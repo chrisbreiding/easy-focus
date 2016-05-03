@@ -93,10 +93,11 @@
       backgroundColor: highlightColor,
       color: '#333',
       display: 'inline-block',
+      fontFamily: 'sans-serif',
       padding: '5px 8px',
       position: 'relative',
-      top: '100%',
       left: '-' + highlightBorderWidth + 'px',
+      top: '-' + highlightBorderWidth + 'px',
     });
     el.innerText = identifier.letter;
     return el;
