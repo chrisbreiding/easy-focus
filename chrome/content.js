@@ -165,4 +165,6 @@
   - banner at top with instructions
   - handle when page is scrolled
   - handle too many focusables
+  - hitting keyboard shortcut toggles overlay
+  - expand focusables to other form elements and links
 */
