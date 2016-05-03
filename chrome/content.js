@@ -16,7 +16,9 @@
   document.body.appendChild(containerEl);
 
   var focusableNodes = slice.call(document.querySelectorAll('input, textarea, button'))
-    .filter(function (node) { return !!node.clientWidth && !!node.clientHeight })
+    .filter(function (node) {
+      return !node.disabled && !!node.clientWidth && !!node.clientHeight;
+    })
     .sort(function (a, b) {
       var aRect = nodeRect(a);
       var bRect = nodeRect(b);
@@ -160,7 +162,6 @@
 
 /**
   TODO
-  - handle disabled elements
   - banner at top with instructions
   - handle when page is scrolled
   - handle too many focusables
