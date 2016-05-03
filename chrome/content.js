@@ -55,6 +55,10 @@
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
 
+  chrome.runtime.onMessage.addListener(function (message) {
+    if (message === 'close') close();
+  });
+
   function container () {
     var el = document.createElement('div');
     Object.assign(el.style, {
@@ -153,7 +157,9 @@
   }
 
   function close () {
-    document.body.removeChild(containerEl);
+    if (containerEl.parentNode === document.body) {
+      document.body.removeChild(containerEl);
+    }
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('keyup', onKeyUp);
     chrome.runtime.sendMessage({ close: true });
@@ -165,6 +171,5 @@
   - banner at top with instructions
   - handle when page is scrolled
   - handle too many focusables
-  - hitting keyboard shortcut toggles overlay
   - expand focusables to other form elements and links
 */
