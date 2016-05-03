@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Easy Focus Test</title>
+  <style>
+    .abs-positioned { position: relative; }
+    .abs-positioned input { position: absolute; left: 20px; }
+
+    .rel-positioned { margin-bottom: 60px; }
+    .rel-positioned input { position: relative; top: 40px; }
+
+    .with-padding textarea { padding: 50px; }
+  </style>
+</head>
+<body>
+  <p><input /></p>
+  <p class="abs-positioned"><input /></p>
+  <p class="rel-positioned"><input /></p>
+  <p><textarea></textarea></p>
+  <p class="with-padding"><textarea></textarea></p>
+  <p><button>Button</button></p>
+  <p><button disabled>Disabled Button</button></p>
+</body>
+</html>
