@@ -22,13 +22,14 @@
     .sort(function (a, b) {
       var aRect = nodeRect(a);
       var bRect = nodeRect(b);
-      if (aRect.top < bRect.top || aRect.left < bRect.left) {
-        return -1;
-      } else if (aRect.top === bRect.top && aRect.left === bRect.left) {
+
+      if (aRect.top === bRect.top && aRect.left === bRect.left) {
         return 0;
-      } else {
-        return 1;
       }
+      if (aRect.top < bRect.top || (aRect.top === bRect.top && aRect.left < bRect.left)) {
+        return -1;
+      }
+      return 1;
     });
   var focusables = focusableNodes.reduce(function (focusables, node, index) {
     var identifier = identifiers[index];

@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <title>Easy Focus Test</title>
   <style>
+    input { margin-right: 20px; }
+
     .abs-positioned { position: relative; }
     .abs-positioned input { position: absolute; left: 20px; }
 
@@ -14,13 +16,14 @@
   </style>
 </head>
 <body>
-  <p><input /></p>
+  <p><input /><input /></p>
   <p class="abs-positioned"><input /></p>
   <p class="rel-positioned"><input /></p>
   <p><textarea></textarea></p>
   <p class="with-padding"><textarea></textarea></p>
   <p><button>Button</button></p>
   <p><button disabled>Disabled Button</button></p>
+  <p><input /><input /><input /></p>
 
   <script>
     (function () {
