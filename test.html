@@ -21,5 +21,16 @@
   <p class="with-padding"><textarea></textarea></p>
   <p><button>Button</button></p>
   <p><button disabled>Disabled Button</button></p>
+
+  <script>
+    (function () {
+      for (var i = 0; i < 40; i++) {
+        var input = document.createElement('input');
+        var p = document.createElement('p');
+        p.appendChild(input);
+        document.body.appendChild(p);
+      }
+    }());
+  </script>
 </body>
 </html>

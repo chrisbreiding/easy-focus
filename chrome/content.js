@@ -112,7 +112,7 @@
     }).join('');
 
     var width = window.innerWidth;
-    var height = window.innerHeight;
+    var height = windowHeight();
     var el = document.createElement('div');
     /* eslint-disable indent */
     el.innerHTML = [
@@ -129,6 +129,19 @@
     /* eslint-enable indent */
 
     return el;
+  }
+
+  function windowHeight () {
+    var body = document.body;
+    var html = document.documentElement;
+
+    return Math.max(
+      body.scrollHeight,
+      body.offsetHeight,
+      html.clientHeight,
+      html.scrollHeight,
+      html.offsetHeight
+    );
   }
 
   function nodeRect (node) {
@@ -170,7 +183,6 @@
 /**
   TODO
   - banner at top with instructions
-  - handle when page is scrolled
   - handle too many focusables
   - expand focusables to other form elements and links
 */
