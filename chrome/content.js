@@ -17,11 +17,12 @@
 
   var focusableNodes = slice.call(document.querySelectorAll('input, textarea, button'))
     .filter(function (node) {
-      return !node.disabled && !!node.clientWidth && !!node.clientHeight;
+      var nodeRect = getNodeRect(node);
+      return !node.disabled && hasDimensions(nodeRect) && onScreen(nodeRect);
     })
     .sort(function (a, b) {
-      var aRect = nodeRect(a);
-      var bRect = nodeRect(b);
+      var aRect = getNodeRect(a);
+      var bRect = getNodeRect(b);
 
       if (aRect.top === bRect.top && aRect.left === bRect.left) {
         return 0;
@@ -60,6 +61,23 @@
     if (message === 'close') close();
   });
 
+
+  function hasDimensions (nodeRect) {
+    return !!nodeRect.width && !!nodeRect.height;
+  }
+
+  function onScreen (nodeRect) {
+    var viewport = getViewportDimensions();
+    var scroll = getScrollOffset();
+
+    return (
+      nodeRect.left + nodeRect.width > scroll.left &&
+      nodeRect.left < viewport.width + scroll.left &&
+      nodeRect.top + nodeRect.height > scroll.top &&
+      nodeRect.top < viewport.height + scroll.top
+    );
+  }
+
   function container () {
     var el = document.createElement('div');
     Object.assign(el.style, {
@@ -75,7 +93,7 @@
 
   function highlight (node) {
     var el = document.createElement('div');
-    var rect = nodeRect(node);
+    var rect = getNodeRect(node);
     Object.assign(el.style, {
       boxSizing: 'content-box',
       position: 'absolute',
@@ -107,13 +125,13 @@
   function background (focusables) {
     var masks = Object.keys(focusables).map(function (key) {
       var focusable = focusables[key];
-      var rect = nodeRect(focusable.node);
+      var rect = getNodeRect(focusable.node);
 
       return '<rect x="' + rect.left + '" y="' + rect.top + '" width="' + rect.width + '" height="' + rect.height + '" fill="black" />';
     }).join('');
 
-    var width = window.innerWidth;
-    var height = windowHeight();
+    var width = getViewportDimensions().width;
+    var height = getWindowHeight();
     var el = document.createElement('div');
     /* eslint-disable indent */
     el.innerHTML = [
@@ -132,7 +150,21 @@
     return el;
   }
 
-  function windowHeight () {
+  function getViewportDimensions () {
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+  }
+
+  function getScrollOffset () {
+    return {
+      left: window.scrollX,
+      top: window.scrollY,
+    };
+  }
+
+  function getWindowHeight () {
     var body = document.body;
     var html = document.documentElement;
 
@@ -145,11 +177,12 @@
     );
   }
 
-  function nodeRect (node) {
+  function getNodeRect (node) {
     var rect = node.getBoundingClientRect();
+    var scroll = getScrollOffset();
     return {
-      top: rect.top,
-      left: rect.left,
+      top: rect.top + scroll.top,
+      left: rect.left + scroll.left,
       width: rect.width,
       height: rect.height,
     };
