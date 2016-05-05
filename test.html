@@ -14,6 +14,8 @@
 
     .no-size input { border: none; height: 0; padding: 0; width: 0; }
     .off-screen input { position: absolute; left: -300px; }
+    .display-none input { display: none; }
+    .hidden input { visibility: hidden; }
 
     .with-padding textarea { padding: 50px; }
   </style>
@@ -22,8 +24,10 @@
   <p><input /><input /></p>
   <p class="abs-positioned"><input /></p>
   <p class="rel-positioned"><input /></p>
-  <p class="no-size"><input /></p>
-  <p class="off-screen"><input /></p>
+  <p class="no-size">-><input /><-</p>
+  <p class="off-screen"><input /><-</p>
+  <p class="display-none">-><input /><-</p>
+  <p class="hidden">-><input /><-</p>
   <p><textarea></textarea></p>
   <p class="with-padding"><textarea></textarea></p>
   <p><button>Button</button></p>

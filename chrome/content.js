@@ -15,10 +15,18 @@
   var containerEl = container();
   document.body.appendChild(containerEl);
 
+  var viewport = getViewportDimensions();
+  var scroll = getScrollOffset();
+
   var focusableNodes = slice.call(document.querySelectorAll('input, textarea, button'))
     .filter(function (node) {
       var nodeRect = getNodeRect(node);
-      return !node.disabled && hasDimensions(nodeRect) && onScreen(nodeRect);
+      return (
+        !node.disabled &&
+        hasDimensions(nodeRect) &&
+        onScreen(nodeRect, viewport, scroll) &&
+        isVisible(node)
+      );
     })
     .sort(function (a, b) {
       var aRect = getNodeRect(a);
@@ -66,10 +74,11 @@
     return !!nodeRect.width && !!nodeRect.height;
   }
 
-  function onScreen (nodeRect) {
-    var viewport = getViewportDimensions();
-    var scroll = getScrollOffset();
+  function isVisible (node) {
+    return window.getComputedStyle(node).visibility !== 'hidden';
+  }
 
+  function onScreen (nodeRect, viewport, scroll) {
     return (
       nodeRect.left + nodeRect.width > scroll.left &&
       nodeRect.left < viewport.width + scroll.left &&
