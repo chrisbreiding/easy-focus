@@ -17,7 +17,11 @@
     .display-none input { display: none; }
     .hidden input { visibility: hidden; }
 
+    .with-tab-index { border: solid 1px #c7c7c7; height: 50px; width: 200px; }
+
     .with-padding textarea { padding: 50px; }
+
+    .above-the-fold { position: absolute; left: 350px; top: 40px; }
   </style>
 </head>
 <body>
@@ -28,21 +32,39 @@
   <p class="off-screen"><input /><-</p>
   <p class="display-none">-><input /><-</p>
   <p class="hidden">-><input /><-</p>
+  <p>-><input type="hidden" /><-</p>
+  <div class="with-tab-index" tabindex="1"></div>
   <p><textarea></textarea></p>
   <p class="with-padding"><textarea></textarea></p>
-  <p><button>Button</button></p>
-  <p><button disabled>Disabled Button</button></p>
   <p><input /><input /><input /></p>
-
-  <script>
-    (function () {
-      for (var i = 0; i < 40; i++) {
-        var input = document.createElement('input');
-        var p = document.createElement('p');
-        p.appendChild(input);
-        document.body.appendChild(p);
-      }
-    }());
-  </script>
+  <p><input /></p>
+  <p><input /></p>
+  <p><input /></p>
+  <p><input /></p>
+  <p><input /></p>
+  <p><input /></p>
+  <p><input /></p>
+  <div class="above-the-fold">
+    <p>
+      <input type="checkbox" name="check" /> Checkbox<br />
+      <input type="checkbox" name="check" /> Checkbox<br />
+      <input type="checkbox" name="check" /> Checkbox
+    </p>
+    <p>
+      <input type="radio" name="radio" /> Radio<br />
+      <input type="radio" name="radio" /> Radio<br />
+      <input type="radio" name="radio" /> Radio
+    </p>
+    <select>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+    <p><button>Button</button></p>
+    <p><button disabled>Disabled Button</button></p>
+    <p><a href="#">With href</a></p>
+    <p><a>Without href</a></p>
+  </div>
 </body>
 </html>

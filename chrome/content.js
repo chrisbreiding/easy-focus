@@ -18,7 +18,8 @@
   var viewport = getViewportDimensions();
   var scroll = getScrollOffset();
 
-  var focusableNodes = slice.call(document.querySelectorAll('input, textarea, button'))
+  var focusableSelectors = 'input, textarea, button, a[href], select, [tabindex]';
+  var focusableNodes = slice.call(document.querySelectorAll(focusableSelectors))
     .filter(function (node) {
       var nodeRect = getNodeRect(node);
       return (
@@ -227,5 +228,6 @@
   TODO
   - banner at top with instructions
   - handle too many focusables
-  - expand focusables to other form elements and links
+  - use more of a tooltip style, pointing to focusables
+    * ensure tooltip is on screen
 */
