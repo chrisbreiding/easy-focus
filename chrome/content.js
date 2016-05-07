@@ -1,47 +1,90 @@
 (function () {
   var slice = [].slice;
-  var whichStart = 65;
-  var identifiers = 'abcdefghijklmnopqrstuvwxyz'.split('').map(function (letter, index) {
-    return {
-      letter: letter,
-      code: whichStart + index,
-    };
-  });
 
   var ESC = 27;
   var highlightBorderWidth = 3;
   var highlightColor = 'yellow';
 
-  var containerEl = container();
-  document.body.appendChild(containerEl);
+  run();
 
-  var viewport = getViewportDimensions();
-  var scroll = getScrollOffset();
 
-  var focusableSelectors = 'input, textarea, button, a[href], select, [tabindex]';
-  var focusableNodes = slice.call(document.querySelectorAll(focusableSelectors))
-    .filter(function (node) {
-      var nodeRect = getNodeRect(node);
-      return (
-        !node.disabled &&
-        hasDimensions(nodeRect) &&
-        onScreen(nodeRect, viewport, scroll) &&
-        isVisible(node)
-      );
-    })
-    .sort(function (a, b) {
-      var aRect = getNodeRect(a);
-      var bRect = getNodeRect(b);
-
-      if (aRect.top === bRect.top && aRect.left === bRect.left) {
-        return 0;
-      }
-      if (aRect.top < bRect.top || (aRect.top === bRect.top && aRect.left < bRect.left)) {
-        return -1;
-      }
-      return 1;
+  function run () {
+    var whichStart = 65;
+    var identifiers = 'abcdefghijklmnopqrstuvwxyz'.split('').map(function (letter, index) {
+      return {
+        letter: letter,
+        code: whichStart + index,
+      };
     });
-  var focusables = focusableNodes.reduce(function (focusables, node, index) {
+
+    var viewport = getViewportDimensions();
+    var scroll = getScrollOffset();
+
+    var focusables = getFocusables()
+      .filter(partial(filterFocusables, viewport, scroll))
+      .sort(sortFocusables)
+      .reduce(partial(reduceFocusables, identifiers), {});
+
+    if (!Object.keys(focusables).length) return;
+
+    var highlightsFragment = Object.keys(focusables)
+      .map(function (key) { return focusables[key]; })
+      .reduce(reduceHighlightsFragment, document.createDocumentFragment());
+
+    var containerEl = container();
+
+    containerEl.appendChild(background(focusables));
+    containerEl.appendChild(highlightsFragment);
+    document.body.appendChild(containerEl);
+
+    var onClose = partial(close, containerEl, keydownListener, keyupListener);
+
+    var keydownListener = partial(onKeyDown, focusables);
+    var keyupListener = partial(onKeyUp, focusables, onClose);
+    document.addEventListener('keydown', keydownListener);
+    document.addEventListener('keyup', keyupListener);
+
+    chrome.runtime.onMessage.addListener(function (message) {
+      if (message === 'close') onClose();
+    });
+  }
+
+  function partial (func) {
+    var args = slice.call(arguments, 1);
+    return function () {
+      return func.apply(null, args.concat(slice.call(arguments)));
+    };
+  }
+
+  function getFocusables () {
+    var focusablesSelector = 'input, textarea, button, a[href], select, [tabindex]';
+    return slice.call(document.querySelectorAll(focusablesSelector));
+  }
+
+  function filterFocusables (viewport, scroll, node) {
+    var nodeRect = getNodeRect(node);
+    return (
+      !node.disabled &&
+      hasDimensions(nodeRect) &&
+      onScreen(nodeRect, viewport, scroll) &&
+      isVisible(node)
+    );
+  }
+
+  function sortFocusables (a, b) {
+    var aRect = getNodeRect(a);
+    var bRect = getNodeRect(b);
+
+    if (aRect.top === bRect.top && aRect.left === bRect.left) {
+      return 0;
+    }
+    if (aRect.top < bRect.top || (aRect.top === bRect.top && aRect.left < bRect.left)) {
+      return -1;
+    }
+    return 1;
+  }
+
+  function reduceFocusables (identifiers, focusables, node, index) {
     var identifier = identifiers[index];
     if (!identifier) return focusables;
 
@@ -50,26 +93,14 @@
       node: node,
     };
     return focusables;
-  }, {});
+  }
 
-  if (!Object.keys(focusables).length) return;
-
-  containerEl.appendChild(background(focusables));
-  Object.keys(focusables)
-    .map(function (key) { return focusables[key]; })
-    .forEach(function (focusable) {
-      var highlightEl = highlight(focusable.node);
-      highlightEl.appendChild(label(focusable.identifier));
-      containerEl.appendChild(highlightEl);
-    });
-
-  document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('keyup', onKeyUp);
-
-  chrome.runtime.onMessage.addListener(function (message) {
-    if (message === 'close') close();
-  });
-
+  function reduceHighlightsFragment (fragment, focusable) {
+    var highlightEl = highlight(focusable.node);
+    highlightEl.appendChild(label(focusable.identifier));
+    fragment.appendChild(highlightEl);
+    return fragment;
+  }
 
   function hasDimensions (nodeRect) {
     return !!nodeRect.width && !!nodeRect.height;
@@ -198,28 +229,28 @@
     };
   }
 
-  function onKeyDown (e) {
+  function onKeyDown (focusables, e) {
     if (e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
     if (focusables[e.which]) e.preventDefault();
   }
 
-  function onKeyUp (e) {
+  function onKeyUp (focusables, onClose, e) {
     if (e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (e.which === ESC) return close();
+    if (e.which === ESC) return onClose();
 
     var focusable = focusables[e.which];
     if (focusable) {
       focusable.node.focus();
-      close();
+      onClose();
     }
   }
 
-  function close () {
+  function close (containerEl, keydownListener, keyupListener) {
     if (containerEl.parentNode === document.body) {
       document.body.removeChild(containerEl);
     }
-    document.removeEventListener('keydown', onKeyDown);
-    document.removeEventListener('keyup', onKeyUp);
+    document.removeEventListener('keydown', keydownListener);
+    document.removeEventListener('keyup', keyupListener);
     chrome.runtime.sendMessage({ close: true });
   }
 }());
