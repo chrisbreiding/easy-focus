@@ -257,8 +257,15 @@
 
 /**
   TODO
-  - banner at top with instructions
+  - add cypress tests
+  - more nuanced sorting
+    * an element slightly higher shouldn't be before an element
+      significantly farther left
   - handle too many focusables
   - use more of a tooltip style, pointing to focusables
     * ensure tooltip is on screen
+  - banner at top with instructions
+    * "Hit letter to focus field"
+    * "Hit ESC to exit"
+    * placement?
 */
