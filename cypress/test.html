@@ -19,29 +19,30 @@
 
     .with-tab-index { border: solid 1px #c7c7c7; height: 50px; width: 200px; }
 
-    .with-padding textarea { padding: 50px; }
+    .with-padding textarea { padding: 20px; }
 
     .above-the-fold { position: absolute; left: 350px; top: 40px; }
   </style>
 </head>
 <body>
-  <p><input /><input /></p>
-  <p class="abs-positioned"><input /></p>
-  <p class="rel-positioned"><input /></p>
-  <p class="no-size">-><input /><-</p>
-  <p class="off-screen"><input /><-</p>
-  <p class="display-none">-><input /><-</p>
-  <p class="hidden">-><input /><-</p>
-  <p>-><input type="hidden" /><-</p>
-  <div class="with-tab-index" tabindex="1"></div>
-  <p><textarea></textarea></p>
-  <p class="with-padding"><textarea></textarea></p>
-  <p><input /><input /><input /></p>
-  <p><input /></p>
-  <p><input /></p>
-  <p><input /></p>
-  <p><input /></p>
-  <p><input /></p>
+  <p><input value="an input" /><input value="another input" /></p>
+  <p class="abs-positioned"><input value="position: absolute" /></p>
+  <p class="rel-positioned"><input value="position: relative" /></p>
+  <p class="no-size">-><input /><- No size</p>
+  <p class="off-screen"><input /><- Off screen</p>
+  <p class="display-none">-><input /><- display: none</p>
+  <p class="hidden">-><input /><- visibility: hidden</p>
+  <p>-><input type="hidden" /><- type="hidden"</p>
+  <div class="with-tab-index" tabindex="1">&lt;div&gt; with tab-index</div>
+  <p><textarea>A textarea</textarea></p>
+  <p class="with-padding"><textarea>With padding</textarea></p>
+  <p><input value="the" /><input value="rest" /><input value="are" /></p>
+  <p><input value="inputs" /></p>
+  <p><input value="that" /></p>
+  <p><input value="may" /></p>
+  <p><input value="go" /></p>
+  <p><input value="off" /></p>
+  <p><input value="screen" /></p>
   <p><input /></p>
   <p><input /></p>
   <div class="above-the-fold">
@@ -64,7 +65,7 @@
     <p><button>Button</button></p>
     <p><button disabled>Disabled Button</button></p>
     <p><a href="#">With href</a></p>
-    <p><a>Without href</a></p>
   </div>
+  <p><input /></p>
 </body>
 </html>

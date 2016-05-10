@@ -1,0 +1,10 @@
+{
+  "name": "easy-focus",
+  "private": true,
+  "scripts": {
+    "start": "http-server"
+  },
+  "devDependencies": {
+    "http-server": "^0.9.0"
+  }
+}

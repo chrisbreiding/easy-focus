@@ -27,14 +27,10 @@
 
     if (!Object.keys(focusables).length) return;
 
-    var highlightsFragment = Object.keys(focusables)
-      .map(function (key) { return focusables[key]; })
-      .reduce(reduceHighlightsFragment, document.createDocumentFragment());
-
     var containerEl = container();
 
     containerEl.appendChild(background(focusables));
-    containerEl.appendChild(highlightsFragment);
+    containerEl.appendChild(highlights(focusables));
     document.body.appendChild(containerEl);
 
     var onClose = partial(close, containerEl, keydownListener, keyupListener);
@@ -95,11 +91,26 @@
     return focusables;
   }
 
+  function highlights (focusables) {
+    var highlightsFragment = Object.keys(focusables)
+      .map(function (key) { return focusables[key]; })
+      .reduce(reduceHighlightsFragment, document.createDocumentFragment());
+
+    var containerEl = document.createElement('div');
+    containerEl.className = className('highlights');
+    containerEl.appendChild(highlightsFragment);
+    return containerEl;
+  }
+
   function reduceHighlightsFragment (fragment, focusable) {
     var highlightEl = highlight(focusable.node);
     highlightEl.appendChild(label(focusable.identifier));
     fragment.appendChild(highlightEl);
     return fragment;
+  }
+
+  function className (base) {
+    return '__easy-focus__' + base;
   }
 
   function hasDimensions (nodeRect) {
@@ -121,6 +132,7 @@
 
   function container () {
     var el = document.createElement('div');
+    el.className = className('container');
     Object.assign(el.style, {
       position: 'absolute',
       top: 0,
@@ -134,6 +146,7 @@
 
   function highlight (node) {
     var el = document.createElement('div');
+    el.className = className('highlight');
     var rect = getNodeRect(node);
     Object.assign(el.style, {
       boxSizing: 'content-box',
@@ -149,6 +162,7 @@
 
   function label (identifier) {
     var el = document.createElement('div');
+    el.className = className('label');
     Object.assign(el.style, {
       backgroundColor: highlightColor,
       color: '#333',
@@ -174,6 +188,7 @@
     var width = getViewportDimensions().width;
     var height = getWindowHeight();
     var el = document.createElement('div');
+    el.className = className('background');
     /* eslint-disable indent */
     el.innerHTML = [
       '<svg width="' + width + '" height="' + height + '">',
@@ -257,13 +272,13 @@
 
 /**
   TODO
-  - add cypress tests
   - more nuanced sorting
     * an element slightly higher shouldn't be before an element
       significantly farther left
   - handle too many focusables
   - use more of a tooltip style, pointing to focusables
     * ensure tooltip is on screen
+  - move cursor to end of input
   - banner at top with instructions
     * "Hit letter to focus field"
     * "Hit ESC to exit"
