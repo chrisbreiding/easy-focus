@@ -4,6 +4,7 @@
   var ESC = 27;
   var highlightBorderWidth = 3;
   var highlightColor = 'yellow';
+  var significanceFactor = 15;
 
   run();
 
@@ -74,10 +75,26 @@
     if (aRect.top === bRect.top && aRect.left === bRect.left) {
       return 0;
     }
-    if (aRect.top < bRect.top || (aRect.top === bRect.top && aRect.left < bRect.left)) {
+    // higher is preferred over farther left, unless the element is farther left
+    // and close in how high (within the significance factor) or vice versa
+    if (
+      isHigherThanLeft(aRect, bRect) ||
+      isFartherLeftThanHigh(aRect, bRect) ||
+      isHigher(aRect, bRect)
+    ) {
       return -1;
     }
     return 1;
+  }
+
+  function isHigherThanLeft (aRect, bRect) {
+    return (Math.abs(bRect.left - aRect.left) < significanceFactor) && isHigher(aRect, bRect);
+  }
+  function isFartherLeftThanHigh (aRect, bRect) {
+    return (Math.abs(bRect.top - aRect.top) < significanceFactor) && aRect.left < bRect.left;
+  }
+  function isHigher (aRect, bRect) {
+    return aRect.top < bRect.top;
   }
 
   function reduceFocusables (identifiers, focusables, node, index) {
@@ -272,9 +289,6 @@
 
 /**
   TODO
-  - more nuanced sorting
-    * an element slightly higher shouldn't be before an element
-      significantly farther left
   - handle too many focusables
   - use more of a tooltip style, pointing to focusables
     * ensure tooltip is on screen

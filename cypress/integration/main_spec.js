@@ -42,6 +42,24 @@ describe('Easy Focus', function () {
       .get(withPrefix('label')).last().should('have.text', 'u');
   });
 
+  it('adds the labels in the right order', function () {
+    cy
+      .get('.off-screen input').type('a', { force: true })
+      .focused().should('have.value', 'an input');
+    cy
+      .get('.off-screen input').type('b', { force: true })
+      .focused().should('have.value', 'another input');
+    cy
+      .get('.off-screen input').type('c', { force: true })
+      .focused().should('have.value', 'position: absolute');
+    cy
+      .get('.off-screen input').type('d', { force: true })
+      .focused().should('have.value', 'check 1');
+    cy
+      .get('.off-screen input').type('n', { force: true })
+      .focused().should('have.text', 'With href');
+  });
+
   context('highlight placement and size', function () {
     it('handles inputs / regular positioning', function () {
       cy.contains(withPrefix('label'), 'a').parent().should(function ($highlight) {
@@ -62,7 +80,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles relative positioning', function () {
-      cy.contains(withPrefix('label'), 'f').parent().should(function ($highlight) {
+      cy.contains(withPrefix('label'), 'e').parent().should(function ($highlight) {
         expect($highlight.css('top')).to.equal('88px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('131px');
