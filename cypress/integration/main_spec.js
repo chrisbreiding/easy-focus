@@ -1,5 +1,4 @@
 describe('Easy Focus', function () {
-
   function addScript (doc, src) {
     var script = doc.createElement('script');
     script.src = src;
@@ -7,8 +6,14 @@ describe('Easy Focus', function () {
     doc.body.appendChild(script);
   }
 
-  function withPrefix (base) {
-    return '.__easy-focus__' + base;
+  function getInShadowDom (selector) {
+    return cy.get('.__easy-focus__container').then(function ($container) {
+      return Cypress.$($container[0].shadowRoot).find(selector);
+    });
+  }
+
+  function getHighlightByLabel (label) {
+    return getInShadowDom('.highlights').contains('.label', label).parent();
   }
 
   beforeEach(function () {
@@ -21,25 +26,24 @@ describe('Easy Focus', function () {
   });
 
   it('adds the container', function () {
-    cy.get(withPrefix('container'));
+    cy.get('.__easy-focus__container');
   });
 
   it('adds the background', function () {
-    cy.get(withPrefix('background'));
+    getInShadowDom('.background');
   });
 
   it('adds the right number of highlights', function () {
-    cy.get(withPrefix('highlight')).should('have.length', 21);
+    getInShadowDom('.highlight').should('have.length', 21);
   });
 
   it('adds the right number of labels', function () {
-    cy.get(withPrefix('label')).should('have.length', 21);
+    getInShadowDom('.label').should('have.length', 21);
   });
 
   it('adds the right labels', function () {
-    cy
-      .get(withPrefix('label')).first().should('have.text', 'a')
-      .get(withPrefix('label')).last().should('have.text', 'u');
+    getInShadowDom('.label').first().should('have.text', 'a')
+    getInShadowDom('.label').last().should('have.text', 'u');
   });
 
   it('adds the labels in the right order', function () {
@@ -62,7 +66,7 @@ describe('Easy Focus', function () {
 
   context('highlight placement and size', function () {
     it('handles inputs / regular positioning', function () {
-      cy.contains(withPrefix('label'), 'a').parent().should(function ($highlight) {
+      getHighlightByLabel('a').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('13px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('131px');
@@ -71,7 +75,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles absolute positioning', function () {
-      cy.contains(withPrefix('label'), 'c').parent().should(function ($highlight) {
+      getHighlightByLabel('c').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('48px');
         expect($highlight.css('left')).to.equal('25px');
         expect($highlight.css('width')).to.equal('131px');
@@ -80,7 +84,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles relative positioning', function () {
-      cy.contains(withPrefix('label'), 'e').parent().should(function ($highlight) {
+      getHighlightByLabel('e').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('88px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('131px');
@@ -89,7 +93,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles elements with tab-index', function () {
-      cy.contains(withPrefix('label'), 'm').parent().should(function ($highlight) {
+      getHighlightByLabel('m').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('298px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('202px');
@@ -98,7 +102,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles textareas', function () {
-      cy.contains(withPrefix('label'), 'o').parent().should(function ($highlight) {
+      getHighlightByLabel('o').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('366px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('142px');
@@ -107,7 +111,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles elements with padding', function () {
-      cy.contains(withPrefix('label'), 'p').parent().should(function ($highlight) {
+      getHighlightByLabel('p').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('418px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('178px');
@@ -116,7 +120,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles checkboxes', function () {
-      cy.contains(withPrefix('label'), 'd').parent().should(function ($highlight) {
+      getHighlightByLabel('d').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('57px');
         expect($highlight.css('left')).to.equal('349.891px');
         expect($highlight.css('width')).to.equal('12px');
@@ -125,7 +129,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles radio buttons', function () {
-      cy.contains(withPrefix('label'), 'h').parent().should(function ($highlight) {
+      getHighlightByLabel('h').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('129px');
         expect($highlight.css('left')).to.equal('349.891px');
         expect($highlight.css('width')).to.equal('12px');
@@ -134,7 +138,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles select dropdowns', function () {
-      cy.contains(withPrefix('label'), 'k').parent().should(function ($highlight) {
+      getHighlightByLabel('k').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('200px');
         expect($highlight.css('left')).to.equal('347px');
         expect($highlight.css('width')).to.equal('39px');
@@ -143,7 +147,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles buttons', function () {
-      cy.contains(withPrefix('label'), 'l').parent().should(function ($highlight) {
+      getHighlightByLabel('l').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('235px');
         expect($highlight.css('left')).to.equal('347px');
         expect($highlight.css('width')).to.equal('50px');
@@ -152,7 +156,7 @@ describe('Easy Focus', function () {
     });
 
     it('handles links', function () {
-      cy.contains(withPrefix('label'), 'n').parent().should(function ($highlight) {
+      getHighlightByLabel('n').should(function ($highlight) {
         expect($highlight.css('top')).to.equal('304px');
         expect($highlight.css('left')).to.equal('347px');
         expect($highlight.css('width')).to.equal('61px');
@@ -171,7 +175,7 @@ describe('Easy Focus', function () {
     });
 
     it('removes the container', function () {
-      cy.get(withPrefix('container')).should('not.exist');
+      cy.get('.__easy-focus__container').should('not.exist');
     });
   });
 });

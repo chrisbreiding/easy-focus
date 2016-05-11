@@ -22,5 +22,6 @@
     }
   },
 
+  "web_accessible_resources": ["styles.css"],
   "permissions": ["activeTab"]
 }

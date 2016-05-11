@@ -3,7 +3,6 @@
 
   var ESC = 27;
   var highlightBorderWidth = 3;
-  var highlightColor = 'yellow';
   var significanceFactor = 15;
 
   run();
@@ -29,10 +28,14 @@
     if (!Object.keys(focusables).length) return;
 
     var containerEl = container();
+    var shadowRoot = containerEl.createShadowRoot();
 
-    containerEl.appendChild(background(focusables));
-    containerEl.appendChild(highlights(focusables));
-    document.body.appendChild(containerEl);
+    getStyles().then(function (styles) {
+      shadowRoot.innerHTML = styles;
+      shadowRoot.appendChild(background(focusables));
+      shadowRoot.appendChild(highlights(focusables));
+      document.body.appendChild(containerEl);
+    });
 
     var onClose = partial(close, containerEl, keydownListener, keyupListener);
 
@@ -51,6 +54,19 @@
     return function () {
       return func.apply(null, args.concat(slice.call(arguments)));
     };
+  }
+
+  function getStyles () {
+    return fetch(chrome.extension.getURL('styles.css')).then(function (result) {
+      return result.text();
+    }).then(function (content) {
+      return (
+        '<style>' +
+          ':host { --highlight-border-width: ' + highlightBorderWidth + 'px; }\n' +
+          content +
+        '</style>'
+      );
+    });
   }
 
   function getFocusables () {
@@ -113,10 +129,10 @@
       .map(function (key) { return focusables[key]; })
       .reduce(reduceHighlightsFragment, document.createDocumentFragment());
 
-    var containerEl = document.createElement('div');
-    containerEl.className = className('highlights');
-    containerEl.appendChild(highlightsFragment);
-    return containerEl;
+    var el = document.createElement('div');
+    el.className = 'highlights';
+    el.appendChild(highlightsFragment);
+    return el;
   }
 
   function reduceHighlightsFragment (fragment, focusable) {
@@ -124,10 +140,6 @@
     highlightEl.appendChild(label(focusable.identifier));
     fragment.appendChild(highlightEl);
     return fragment;
-  }
-
-  function className (base) {
-    return '__easy-focus__' + base;
   }
 
   function hasDimensions (nodeRect) {
@@ -149,7 +161,7 @@
 
   function container () {
     var el = document.createElement('div');
-    el.className = className('container');
+    el.className = '__easy-focus__container';
     Object.assign(el.style, {
       position: 'absolute',
       top: 0,
@@ -163,30 +175,21 @@
 
   function highlight (node) {
     var el = document.createElement('div');
-    el.className = className('highlight');
+    el.className = 'highlight';
     var rect = getNodeRect(node);
     Object.assign(el.style, {
-      boxSizing: 'content-box',
-      position: 'absolute',
       top: rect.top - highlightBorderWidth + 'px',
       left: rect.left - highlightBorderWidth + 'px',
       width: rect.width + 'px',
       height: rect.height + 'px',
-      border: 'solid ' + highlightBorderWidth + 'px ' + highlightColor,
     });
     return el;
   }
 
   function label (identifier) {
     var el = document.createElement('div');
-    el.className = className('label');
+    el.className = 'label';
     Object.assign(el.style, {
-      backgroundColor: highlightColor,
-      color: '#333',
-      display: 'inline-block',
-      fontFamily: 'sans-serif',
-      padding: '5px 8px',
-      position: 'relative',
       left: '-' + highlightBorderWidth + 'px',
       top: '-' + highlightBorderWidth + 'px',
     });
@@ -199,13 +202,17 @@
       var focusable = focusables[key];
       var rect = getNodeRect(focusable.node);
 
-      return '<rect x="' + rect.left + '" y="' + rect.top + '" width="' + rect.width + '" height="' + rect.height + '" fill="black" />';
+      return '<rect x="' + rect.left +
+                 '" y="' + rect.top +
+                 '" width="' + rect.width +
+                 '" height="' + rect.height +
+                 '" fill="black" />';
     }).join('');
 
     var width = getViewportDimensions().width;
     var height = getWindowHeight();
     var el = document.createElement('div');
-    el.className = className('background');
+    el.className = 'background';
     /* eslint-disable indent */
     el.innerHTML = [
       '<svg width="' + width + '" height="' + height + '">',
