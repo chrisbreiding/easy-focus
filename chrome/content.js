@@ -4,47 +4,6 @@
   var ESC = 27;
   var highlightBorderWidth = 3;
   var highlightColor = 'yellow';
-  var significanceFactor = 15;
-
-  run();
-
-
-  function run () {
-    var whichStart = 65;
-    var identifiers = 'abcdefghijklmnopqrstuvwxyz'.split('').map(function (letter, index) {
-      return {
-        letter: letter,
-        code: whichStart + index,
-      };
-    });
-
-    var viewport = getViewportDimensions();
-    var scroll = getScrollOffset();
-
-    var focusables = getFocusables()
-      .filter(partial(filterFocusables, viewport, scroll))
-      .sort(sortFocusables)
-      .reduce(partial(reduceFocusables, identifiers), {});
-
-    if (!Object.keys(focusables).length) return;
-
-    var containerEl = container();
-
-    containerEl.appendChild(background(focusables));
-    containerEl.appendChild(highlights(focusables));
-    document.body.appendChild(containerEl);
-
-    var onClose = partial(close, containerEl, keydownListener, keyupListener);
-
-    var keydownListener = partial(onKeyDown, focusables);
-    var keyupListener = partial(onKeyUp, focusables, onClose);
-    document.addEventListener('keydown', keydownListener);
-    document.addEventListener('keyup', keyupListener);
-
-    chrome.runtime.onMessage.addListener(function (message) {
-      if (message === 'close') onClose();
-    });
-  }
 
   function partial (func) {
     var args = slice.call(arguments, 1);
@@ -87,6 +46,7 @@
     return 1;
   }
 
+  var significanceFactor = 15;
   function isHigherThanLeft (aRect, bRect) {
     return (Math.abs(bRect.left - aRect.left) < significanceFactor) && isHigher(aRect, bRect);
   }
@@ -285,6 +245,46 @@
     document.removeEventListener('keyup', keyupListener);
     chrome.runtime.sendMessage({ close: true });
   }
+
+
+  function run () {
+    var whichStart = 65;
+    var identifiers = 'abcdefghijklmnopqrstuvwxyz'.split('').map(function (letter, index) {
+      return {
+        letter: letter,
+        code: whichStart + index,
+      };
+    });
+
+    var viewport = getViewportDimensions();
+    var scroll = getScrollOffset();
+
+    var focusables = getFocusables()
+      .filter(partial(filterFocusables, viewport, scroll))
+      .sort(sortFocusables)
+      .reduce(partial(reduceFocusables, identifiers), {});
+
+    if (!Object.keys(focusables).length) return;
+
+    var containerEl = container();
+
+    containerEl.appendChild(background(focusables));
+    containerEl.appendChild(highlights(focusables));
+    document.body.appendChild(containerEl);
+
+    var onClose = partial(close, containerEl, keydownListener, keyupListener);
+
+    var keydownListener = partial(onKeyDown, focusables);
+    var keyupListener = partial(onKeyUp, focusables, onClose);
+    document.addEventListener('keydown', keydownListener);
+    document.addEventListener('keyup', keyupListener);
+
+    chrome.runtime.onMessage.addListener(function (message) {
+      if (message === 'close') onClose();
+    });
+  }
+
+  run();
 }());
 
 /**
