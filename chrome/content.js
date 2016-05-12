@@ -3,7 +3,7 @@
 
   var ESC = 27;
   var highlightBorderWidth = 3;
-  var highlightColor = 'yellow';
+  var highlightColor = '#F2F24B';
 
   function partial (func) {
     var args = slice.call(arguments, 1);
@@ -71,6 +71,7 @@
   function highlights (focusables) {
     var highlightsFragment = Object.keys(focusables)
       .map(function (key) { return focusables[key]; })
+      .reverse()
       .reduce(reduceHighlightsFragment, document.createDocumentFragment());
 
     var containerEl = document.createElement('div');
@@ -116,7 +117,7 @@
       left: 0,
       bottom: 0,
       right: 0,
-      zIndex: 99999,
+      zIndex: 999999,
     });
     return el;
   }
@@ -127,6 +128,7 @@
     var rect = getNodeRect(node);
     Object.assign(el.style, {
       boxSizing: 'content-box',
+      boxShadow: '0 0 5px rgba(0, 0, 0, 0.8)',
       position: 'absolute',
       top: rect.top - highlightBorderWidth + 'px',
       left: rect.left - highlightBorderWidth + 'px',
@@ -137,20 +139,45 @@
     return el;
   }
 
+  var labelSize = 24;
   function label (identifier) {
     var el = document.createElement('div');
     el.className = className('label');
     Object.assign(el.style, {
       backgroundColor: highlightColor,
+      borderRadius: '0 0 3px 3px',
+      boxSizing: 'content-box',
+      boxShadow: '0 0 5px rgba(0, 0, 0, 0.8)',
       color: '#333',
-      display: 'inline-block',
-      fontFamily: 'sans-serif',
-      padding: '5px 8px',
+      fontFamily: 'monospace',
+      marginTop: (labelSize / 2) + highlightBorderWidth + 'px',
       position: 'relative',
-      left: '-' + highlightBorderWidth + 'px',
-      top: '-' + highlightBorderWidth + 'px',
+      left: -(labelSize / 2 - highlightBorderWidth) + 'px',
+      top: '100%',
+      width: labelSize + 'px',
+      height: labelSize + 'px',
+      lineHeight: labelSize + 'px',
+      textAlign: 'center',
+      textTransform: 'uppercase',
     });
     el.innerText = identifier.letter;
+    el.appendChild(labelArrow());
+    return el;
+  }
+
+  function labelArrow () {
+    var el = document.createElement('div');
+    el.className = className('arrow');
+    Object.assign(el.style, {
+      borderLeft: 'solid ' + (labelSize / 2) + 'px transparent',
+      borderRight: 'solid ' + (labelSize / 2) + 'px transparent',
+      borderBottom: 'solid ' + (labelSize / 2) + 'px ' + highlightColor,
+      position: 'absolute',
+      bottom: '100%',
+      left: 0,
+      width: 0,
+      height: 0,
+    });
     return el;
   }
 
@@ -289,10 +316,12 @@
 
 /**
   TODO
-  - handle too many focusables
-  - use more of a tooltip style, pointing to focusables
-    * ensure tooltip is on screen
   - move cursor to end of input
+  - handle too many focusables
+  - https://github.com/chrisbreiding : I should be before C
+  - smart label placement
+    * ensure label is on screen
+    * try to ensure label doesn't overlap other tooltips
   - banner at top with instructions
     * "Hit letter to focus field"
     * "Hit ESC to exit"

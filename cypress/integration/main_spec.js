@@ -38,8 +38,8 @@ describe('Easy Focus', function () {
 
   it('adds the right labels', function () {
     cy
-      .get(withPrefix('label')).first().should('have.text', 'a')
-      .get(withPrefix('label')).last().should('have.text', 'u');
+      .get(withPrefix('label')).first().should('have.text', 'u')
+      .get(withPrefix('label')).last().should('have.text', 'a');
   });
 
   it('adds the labels in the right order', function () {
