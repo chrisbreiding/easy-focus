@@ -188,6 +188,11 @@ describe('Easy Focus', function () {
       cy.focused().should('have.value', 'an input');
     });
 
+    // need document.type()
+    it.skip('puts the cursor at the end of the text', function () {
+      cy.focused().type(' with more text').should('have.value', 'an input with more text');
+    });
+
     it('removes the container', function () {
       cy.get(withPrefix('container')).should('not.exist');
     });

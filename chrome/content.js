@@ -257,6 +257,15 @@
     return e.shiftKey || e.altKey || e.ctrlKey || e.metaKey;
   }
 
+  function focusNode (node) {
+    node.focus();
+    try {
+      node.setSelectionRange(node.value.length, node.value.length);
+    } catch (e) {
+      /* not a text input, this is fine */
+    }
+  }
+
   var close;
   function onReceiveCommands (commands) {
     var letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -320,7 +329,7 @@
 
       var focusable = focusables[e.which];
       if (focusable && focusableSelected === focusable) {
-        focusable.node.focus();
+        focusNode(focusable.node);
         close();
       }
     }
@@ -345,7 +354,6 @@
 
 /**
   TODO
-  - move cursor to end of input
   - handle too many focusables
   - https://github.com/chrisbreiding : I should be before C
   - smart label placement
