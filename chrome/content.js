@@ -248,41 +248,42 @@
     };
   }
 
-  function onKeyDown (focusables, e) {
-    if (e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (focusables[e.which]) e.preventDefault();
+  function onMessage (message) {
+    if (message.type === 'close' && close) close();
+    if (message.type === 'commands') onReceiveCommands(message.commands);
   }
 
-  function onKeyUp (focusables, onClose, e) {
-    if (e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (e.which === ESC) return onClose();
-
-    var focusable = focusables[e.which];
-    if (focusable) {
-      focusable.node.focus();
-      onClose();
-    }
+  function withModifier (e) {
+    return e.shiftKey || e.altKey || e.ctrlKey || e.metaKey;
   }
 
-  function close (containerEl, keydownListener, keyupListener) {
-    if (containerEl.parentNode === document.body) {
-      document.body.removeChild(containerEl);
-    }
-    document.removeEventListener('keydown', keydownListener);
-    document.removeEventListener('keyup', keyupListener);
-    chrome.runtime.sendMessage({ close: true });
-  }
-
-
-  function run () {
+  var close;
+  function onReceiveCommands (commands) {
+    var letters = 'abcdefghijklmnopqrstuvwxyz';
     var whichStart = 65;
-    var identifiers = 'abcdefghijklmnopqrstuvwxyz'.split('').map(function (letter, index) {
+    var identifiers = letters.split('').map(function (letter, index) {
       return {
         letter: letter,
         code: whichStart + index,
       };
     });
 
+    // don't use any letters as labels that are in a command
+    // or they'll cause issues when they trigger keyup
+    var collidingCommandLetters = commands
+      .map(function (command) { return command.shortcut.toLowerCase(); })
+      .map(function (shortcut) { return shortcut.split('+'); })
+      .reduce(function (keys, chars) { return keys.concat(chars); }, [])
+      .filter(function (key) { return key.length === 1 && letters.indexOf(key) > -1; });
+
+    var noncollidingIdentifiers = identifiers.filter(function (identifier) {
+      return collidingCommandLetters.indexOf(identifier.letter) === -1;
+    });
+
+    close = run(noncollidingIdentifiers);
+  }
+
+  function run (identifiers) {
     var viewport = getViewportDimensions();
     var scroll = getScrollOffset();
 
@@ -299,19 +300,47 @@
     containerEl.appendChild(highlights(focusables));
     document.body.appendChild(containerEl);
 
-    var onClose = partial(close, containerEl, keydownListener, keyupListener);
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
 
-    var keydownListener = partial(onKeyDown, focusables);
-    var keyupListener = partial(onKeyUp, focusables, onClose);
-    document.addEventListener('keydown', keydownListener);
-    document.addEventListener('keyup', keyupListener);
+    var focusableSelected = null;
+    var closing = false;
+    function onKeyDown (e) {
+      if (closing || withModifier(e) || e.which === ESC) return;
+      var focusable = focusables[e.which];
+      if (focusable && !focusableSelected) {
+        focusableSelected = focusable;
+        e.preventDefault();
+      }
+    }
 
-    chrome.runtime.onMessage.addListener(function (message) {
-      if (message === 'close') onClose();
-    });
+    function onKeyUp (e) {
+      if (closing || withModifier(e)) return;
+      if (e.which === ESC) return close();
+
+      var focusable = focusables[e.which];
+      if (focusable && focusableSelected === focusable) {
+        focusable.node.focus();
+        close();
+      }
+    }
+
+    function close () {
+      if (closing) return;
+      closing = true;
+      if (containerEl.parentNode === document.body) {
+        document.body.removeChild(containerEl);
+      }
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keyup', onKeyUp);
+      chrome.runtime.onMessage.removeListener(onMessage);
+      chrome.runtime.sendMessage({ close: true });
+    }
+
+    return close;
   }
 
-  run();
+  chrome.runtime.onMessage.addListener(onMessage);
 }());
 
 /**

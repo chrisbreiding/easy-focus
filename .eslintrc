@@ -3,7 +3,8 @@
     "browser": true
   },
   "globals": {
-    "chrome": true
+    "chrome": true,
+    "Promise": true
   },
   "rules": {
     "array-bracket-spacing": ["error", "never"],
