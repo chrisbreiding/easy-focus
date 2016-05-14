@@ -1,17 +1,17 @@
 (function () {
-  var listeners = [];
+  let listeners = [];
 
   window.chrome = {
     runtime: {
       sendMessage: function () {},
       onMessage: {
-        addListener: function (fn) { listeners.push(fn); },
-        removeListener: function () {},
+        addListener: (fn) => listeners.push(fn),
+        removeListener: () => {},
       },
     },
 
     __sendMessageToContent: function (message) {
-      listeners.forEach(function (listener) { listener(message); });
+      listeners.forEach((listener) => listener(message));
     },
   };
 }());
