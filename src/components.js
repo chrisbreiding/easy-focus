@@ -1,7 +1,7 @@
 import { highlightColor, highlightBorderWidth } from './constants';
 import * as dom from './dom';
 
-export function container () {
+export function container (focusables) {
   const el = document.createElement('div');
   el.className = dom.className('container');
   Object.assign(el.style, {
@@ -12,10 +12,12 @@ export function container () {
     right: 0,
     zIndex: 999999,
   });
+  el.appendChild(background(focusables));
+  el.appendChild(highlights(focusables));
   return el;
 }
 
-export function background (focusables) {
+function background (focusables) {
   const masks = Object.keys(focusables).map(function (key) {
     const focusable = focusables[key];
     const rect = dom.getNodeRect(focusable.node);
@@ -47,7 +49,7 @@ export function background (focusables) {
   return el;
 }
 
-export function highlights (focusables) {
+function highlights (focusables) {
   const highlightsFragment = Object.keys(focusables)
     .map((key) => focusables[key])
     .reverse()

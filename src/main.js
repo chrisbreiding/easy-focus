@@ -1,4 +1,4 @@
-import { background, container, highlights } from './components';
+import { container } from './components';
 import * as dom from './dom';
 import { getFocusables } from './focusables';
 import { noncollidingIdentifiers, withModifier } from './util';
@@ -21,10 +21,7 @@ function run (identifiers) {
     return;
   }
 
-  const containerEl = container();
-
-  containerEl.appendChild(background(focusables));
-  containerEl.appendChild(highlights(focusables));
+  const containerEl = container(focusables);
   document.body.appendChild(containerEl);
 
   document.addEventListener('keydown', onKeyDown);
