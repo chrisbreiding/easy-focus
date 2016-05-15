@@ -43,36 +43,40 @@ describe('Easy Focus', () => {
   });
 
   it('adds the right number of highlights', () => {
-    cy.get(withPrefix('highlight')).should('have.length', 21);
+    cy.get(withPrefix('highlight')).should('have.length', 23);
   });
 
   it('adds the right number of labels', () => {
-    cy.get(withPrefix('label')).should('have.length', 21);
+    cy.get(withPrefix('label')).should('have.length', 23);
   });
 
   it('adds the right labels', () => {
     cy
-      .get(withPrefix('label')).first().should('have.text', 'v')
+      .get(withPrefix('label')).first().should('have.text', 'z')
+      .get(withPrefix('label')).eq(14).should('have.text', 'l')
       .get(withPrefix('label')).last().should('have.text', 'a');
   });
 
-  // need document.type()
-  it.skip('adds the labels in the right order', () => {
-    cy
-      .get('.off-screen input').type('a', { force: true })
-      .focused().should('have.value', 'an input');
-    cy
-      .get('.off-screen input').type('b', { force: true })
-      .focused().debug().should('have.value', 'another input');
-    cy
-      .get('.off-screen input').type('c', { force: true })
-      .focused().should('have.value', 'position: absolute');
-    cy
-      .get('.off-screen input').type('d', { force: true })
-      .focused().should('have.value', 'check 1');
-    cy
-      .get('.off-screen input').type('n', { force: true })
-      .focused().should('have.text', 'With href');
+  context('label order', () => {
+    const tests = [
+      { letter: 'a', should: 'have.value', value: 'an input' },
+      { letter: 'b', should: 'have.value', value: 'another input' },
+      { letter: 'c', should: 'have.value', value: 'position: absolute' },
+      { letter: 'd', should: 'have.value', value: 'check 1' },
+      { letter: 'q', should: 'have.text', value: 'With href' },
+      { letter: 'z', should: 'have.value', value: 'last in first batch' },
+    ];
+
+    tests.forEach((test) => {
+      describe(test.letter, () => {
+        beforeEach(() => {
+          cy.get('.test-helper').type(test.letter, { force: true });
+        });
+        it('has the right value', () => {
+          cy.focused().should(test.should, test.value);
+        });
+      });
+    });
   });
 
   context('highlight placement and size', () => {
@@ -104,7 +108,7 @@ describe('Easy Focus', () => {
     });
 
     it('handles elements with tab-index', () => {
-      cy.contains(withPrefix('label'), 'n').parent().should(($highlight) => {
+      cy.contains(withPrefix('label'), 'p').parent().should(($highlight) => {
         expect($highlight.css('top')).to.equal('298px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('202px');
@@ -113,8 +117,8 @@ describe('Easy Focus', () => {
     });
 
     it('handles textareas', () => {
-      cy.contains(withPrefix('label'), 'p').parent().should(($highlight) => {
-        expect($highlight.css('top')).to.equal('366px');
+      cy.contains(withPrefix('label'), 'r').parent().should(($highlight) => {
+        expect($highlight.css('top')).to.equal('350px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('142px');
         expect($highlight.css('height')).to.equal('32px');
@@ -122,8 +126,8 @@ describe('Easy Focus', () => {
     });
 
     it('handles elements with padding', () => {
-      cy.contains(withPrefix('label'), 'q').parent().should(($highlight) => {
-        expect($highlight.css('top')).to.equal('418px');
+      cy.contains(withPrefix('label'), 's').parent().should(($highlight) => {
+        expect($highlight.css('top')).to.equal('402px');
         expect($highlight.css('left')).to.equal('5px');
         expect($highlight.css('width')).to.equal('178px');
         expect($highlight.css('height')).to.equal('68px');
@@ -149,7 +153,7 @@ describe('Easy Focus', () => {
     });
 
     it('handles select dropdowns', () => {
-      cy.contains(withPrefix('label'), 'l').parent().should(($highlight) => {
+      cy.contains(withPrefix('label'), 'n').parent().should(($highlight) => {
         expect($highlight.css('top')).to.equal('200px');
         expect($highlight.css('left')).to.equal('347px');
         expect($highlight.css('width')).to.equal('39px');
@@ -158,7 +162,7 @@ describe('Easy Focus', () => {
     });
 
     it('handles buttons', () => {
-      cy.contains(withPrefix('label'), 'm').parent().should(($highlight) => {
+      cy.contains(withPrefix('label'), 'o').parent().should(($highlight) => {
         expect($highlight.css('top')).to.equal('235px');
         expect($highlight.css('left')).to.equal('347px');
         expect($highlight.css('width')).to.equal('50px');
@@ -167,7 +171,7 @@ describe('Easy Focus', () => {
     });
 
     it('handles links', () => {
-      cy.contains(withPrefix('label'), 'o').parent().should(($highlight) => {
+      cy.contains(withPrefix('label'), 'q').parent().should(($highlight) => {
         expect($highlight.css('top')).to.equal('304px');
         expect($highlight.css('left')).to.equal('347px');
         expect($highlight.css('width')).to.equal('61px');
@@ -178,17 +182,11 @@ describe('Easy Focus', () => {
 
   describe('choosing a focusable', () => {
     beforeEach(() => {
-      cy.get('.off-screen input').type('a', { force: true });
+      cy.get('.test-helper').type('a', { force: true });
     });
 
-    // need document.type()
-    it.skip('focuses the input', () => {
+    it('focuses the input', () => {
       cy.focused().should('have.value', 'an input');
-    });
-
-    // need document.type()
-    it.skip('puts the cursor at the end of the text', () => {
-      cy.focused().type(' with more text').should('have.value', 'an input with more text');
     });
 
     it('removes the container', () => {
@@ -196,10 +194,9 @@ describe('Easy Focus', () => {
     });
   });
 
-
-  describe.skip('typing 2 or more letters in quick succession', () => {
+  describe('typing 2 or more letters in quick succession', () => {
     beforeEach(() => {
-      cy.get('.off-screen input').type('ab', { force: true });
+      cy.get('.test-helper').type('ab', { force: true });
     });
 
     it('focuses the correct input', () => {

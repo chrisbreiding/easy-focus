@@ -6,6 +6,8 @@
   <style>
     input { margin-right: 20px; }
 
+    .test-helper { position: absolute; left: -300px; top: -18px; }
+
     .little-higher { position: relative; top: -3px; }
 
     .abs-positioned { position: relative; }
@@ -27,6 +29,7 @@
   </style>
 </head>
 <body>
+  <input class="test-helper" />
   <p><input value="an input" /><input class="little-higher" value="another input" /></p>
   <p class="abs-positioned"><input value="position: absolute" /></p>
   <p class="rel-positioned"><input value="position: relative" /></p>
@@ -36,17 +39,15 @@
   <p class="hidden">-><input /><- visibility: hidden</p>
   <p>-><input type="hidden" /><- type="hidden"</p>
   <div class="with-tab-index" tabindex="1">&lt;div&gt; with tab-index</div>
-  <p><textarea>A textarea</textarea></p>
+  <textarea>A textarea</textarea>
   <p class="with-padding"><textarea>With padding</textarea></p>
-  <p><input value="the" /><input value="rest" /><input value="are" /></p>
-  <p><input value="inputs" /></p>
-  <p><input value="that" /></p>
-  <p><input value="may" /></p>
-  <p><input value="go" /></p>
-  <p><input value="off" /></p>
-  <p><input value="screen" /></p>
-  <p><input /></p>
-  <p><input /></p>
+  <input /> <input /> <input /> <input /> <input /> <input />
+  <input value="last in first batch" /> <input value="first in second batch" />
+  <input /> <input /> <input /> <input /> <input /> <input /> <input />
+  <input /> <input /> <input /> <input /> <input /> <input /> <input />
+  <input /> <input value="last in second batch" /> <input />
+  <input /> <input /> <input /> <input /> <input /> <input /> <input />
+  <input /> <input /> <input /> <input /> <input /> <input /> <input />
   <div class="above-the-fold">
     <p>
       <input type="checkbox" name="check" value="check 1" /> Checkbox<br />
@@ -68,6 +69,5 @@
     <p><button disabled>Disabled Button</button></p>
     <p><a href="#">With href</a></p>
   </div>
-  <p><input /></p>
 </body>
 </html>
