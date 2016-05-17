@@ -2,6 +2,7 @@
   "globals": {
     "cy": true,
     "Cypress": true,
+    "chai": true,
     "describe": true,
     "context": true,
     "beforeEach": true,

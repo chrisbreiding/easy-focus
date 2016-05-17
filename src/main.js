@@ -1,7 +1,8 @@
 import { container } from './components';
 import * as dom from './dom';
-import { getFocusables } from './focusables';
-import { noncollidingIdentifiers, withModifier } from './util';
+import { getFocusableNodes, getFocusablesAtOffset, inFocusableRange } from './focusables';
+import { actions, noncollidingIdentifiers } from './identifiers';
+import { withModifier } from './util';
 
 let close;
 
@@ -15,15 +16,37 @@ function onReceiveCommands (commands) {
 }
 
 function run (identifiers) {
-  const focusables = getFocusables(identifiers);
-  if (!Object.keys(focusables).length) {
+  const focusableNodes = getFocusableNodes(identifiers);
+  if (!focusableNodes.length) {
     chrome.runtime.onMessage.removeListener(onMessage);
     return;
   }
 
-  const containerEl = container(focusables);
-  document.body.appendChild(containerEl);
+  let page = 0;
+  let focusables;
+  let containerEl;
 
+  function render () {
+    const offset = page * identifiers.length;
+    focusables = getFocusablesAtOffset(focusableNodes, identifiers, offset);
+    containerEl = container(focusables);
+    document.body.appendChild(containerEl);
+  }
+
+  function paginate (direction) {
+    const numFocusables = Object.keys(focusables).length
+    if (direction === 'down' && focusableNodes.length > page * identifiers.length + numFocusables) {
+      page++;
+    } else if (direction === 'up' && page > 0) {
+      page--;
+    } else {
+      return;
+    }
+    document.body.removeChild(containerEl);
+    render();
+  }
+
+  render(page);
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
 
@@ -33,7 +56,7 @@ function run (identifiers) {
   function onKeyDown (e) {
     if (closing || withModifier(e) || e.which === ESC) return;
     const focusable = focusables[e.which];
-    if (focusable && !focusableSelected) {
+    if (!focusableSelected && inFocusableRange(e.which)) {
       focusableSelected = focusable;
       e.preventDefault();
     }
@@ -47,6 +70,11 @@ function run (identifiers) {
     if (focusable && focusableSelected === focusable) {
       dom.focusNode(focusable.node);
       close();
+    }
+
+    const action = actions[e.which];
+    if (action) {
+      paginate(action);
     }
   }
 
@@ -71,8 +99,9 @@ chrome.runtime.onMessage.addListener(onMessage);
 
 /**
   TODO
-  - handle too many focusables
-  - https://github.com/chrisbreiding : I should be before C
+  1.0
+  - sorting algoritm needs work
+    * https://github.com/chrisbreiding : check for oddities
   - smart label placement
     * ensure label is on screen
     * try to ensure label doesn't overlap other tooltips
@@ -80,5 +109,11 @@ chrome.runtime.onMessage.addListener(onMessage);
   - banner at top with instructions
     * "Hit letter to focus field"
     * "Hit ESC to exit"
+    * pagination indicators
     * placement?
+  - package and deploy
+  1.1
+  - filter mode
+    * after a shortcut trigger
+    * can start typing and filter down focusables based on text
 */

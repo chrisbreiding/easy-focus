@@ -1,19 +1,25 @@
 import * as dom from './dom';
+import { whichStart, whichEnd } from './identifiers';
 import { partial } from './util';
 
-export function getFocusables (identifiers) {
-  const viewport = dom.getViewportDimensions();
-  const scroll = dom.getScrollOffset();
+export function inFocusableRange (which) {
+  return which >= whichStart && which <= whichEnd;
+}
 
-  return getFocusableNodes()
-    .filter(partial(filterFocusables, viewport, scroll))
-    .sort(sortFocusables)
+export function getFocusablesAtOffset (nodes, identifiers, offset) {
+  return nodes
+    .slice(offset)
     .reduce(partial(reduceFocusables, identifiers), {});
 }
 
-function getFocusableNodes () {
+export function getFocusableNodes () {
+  const viewport = dom.getViewportDimensions();
+  const scroll = dom.getScrollOffset();
+
   const focusablesSelector = 'input, textarea, button, a[href], select, [tabindex]';
-  return [...document.querySelectorAll(focusablesSelector)];
+  return [...document.querySelectorAll(focusablesSelector)]
+    .filter(partial(filterFocusables, viewport, scroll))
+    .sort(sortFocusables);
 }
 
 function filterFocusables (viewport, scroll, node) {
@@ -48,6 +54,6 @@ function sortFocusables (a, b) {
 function reduceFocusables (identifiers, focusables, node, index) {
   const identifier = identifiers[index];
   if (!identifier) return focusables;
-  focusables[identifier.code] = { identifier, node };
+  focusables[identifier.which] = { identifier, node };
   return focusables;
 }
