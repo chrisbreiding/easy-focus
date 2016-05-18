@@ -100,8 +100,6 @@ chrome.runtime.onMessage.addListener(onMessage);
 /**
   TODO
   1.0
-  - sorting algoritm needs work
-    * https://github.com/chrisbreiding : check for oddities
   - smart label placement
     * ensure label is on screen
     * try to ensure label doesn't overlap other tooltips

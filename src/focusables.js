@@ -18,11 +18,11 @@ export function getFocusableNodes () {
 
   const focusablesSelector = 'input, textarea, button, a[href], select, [tabindex]';
   return [...document.querySelectorAll(focusablesSelector)]
-    .filter(partial(filterFocusables, viewport, scroll))
-    .sort(sortFocusables);
+    .filter(partial(filterFocusableNodes, viewport, scroll))
+    .sort(sortFocusableNodes);
 }
 
-function filterFocusables (viewport, scroll, node) {
+function filterFocusableNodes (viewport, scroll, node) {
   const nodeRect = dom.getNodeRect(node);
   return (
     !node.disabled &&
@@ -32,7 +32,7 @@ function filterFocusables (viewport, scroll, node) {
   );
 }
 
-function sortFocusables (a, b) {
+function sortFocusableNodes (a, b) {
   const aRect = dom.getNodeRect(a);
   const bRect = dom.getNodeRect(b);
 
@@ -41,11 +41,11 @@ function sortFocusables (a, b) {
   }
   // higher is preferred over farther left, unless the element is farther left
   // and close in how high (within the significance factor) or vice versa
-  if (
-    dom.isHigherThanLeft(aRect, bRect) ||
-    dom.isFartherLeftThanHigh(aRect, bRect) ||
-    dom.isHigher(aRect, bRect)
-  ) {
+  if (dom.isHigherThanLeft(aRect, bRect) || dom.isFartherLeftThanHigh(aRect, bRect)) {
+    return -1;
+  } else if (dom.isHigherThanLeft(bRect, aRect) || dom.isFartherLeftThanHigh(bRect, aRect)) {
+    return 1;
+  } else if (dom.isHigher(aRect, bRect)) {
     return -1;
   }
   return 1;
