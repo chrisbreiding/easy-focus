@@ -18,7 +18,7 @@ function onReceiveCommands (commands) {
 function run (identifiers) {
   const focusableNodes = getFocusableNodes(identifiers);
   if (!focusableNodes.length) {
-    chrome.runtime.onMessage.removeListener(onMessage);
+    close();
     return;
   }
 
@@ -49,6 +49,8 @@ function run (identifiers) {
   render(page);
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
+  window.addEventListener('unload', close);
+  chrome.runtime.sendMessage({ running: true });
 
   const ESC = 27;
   let focusableSelected = null;
@@ -82,7 +84,7 @@ function run (identifiers) {
     if (closing) return;
 
     closing = true;
-    if (containerEl.parentNode === document.body) {
+    if (containerEl && containerEl.parentNode === document.body) {
       document.body.removeChild(containerEl);
     }
     document.removeEventListener('keydown', onKeyDown);
