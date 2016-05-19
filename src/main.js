@@ -2,7 +2,7 @@ import { container } from './components';
 import * as dom from './dom';
 import { getFocusableNodes, getFocusablesAtOffset, inFocusableRange } from './focusables';
 import { actions, noncollidingIdentifiers } from './identifiers';
-import { withModifier } from './util';
+import { withModifier, withPrefix } from './util';
 
 let close;
 
@@ -44,6 +44,14 @@ function run (identifiers) {
     }
     document.body.removeChild(containerEl);
     render();
+  }
+
+  // if the extension gets reloaded and loses its state, the container
+  // from a previous run could be left because this script
+  // didn't get a chance to 'close'
+  let existingContainer = document.getElementById(withPrefix('container'));
+  if (existingContainer) {
+    document.body.removeChild(existingContainer);
   }
 
   render(page);

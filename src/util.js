@@ -5,3 +5,7 @@ export function partial (func, ...partialArgs) {
 export function withModifier (e) {
   return e.shiftKey || e.altKey || e.ctrlKey || e.metaKey;
 }
+
+export function withPrefix (base) {
+  return `__easy-focus__${base}`;
+}

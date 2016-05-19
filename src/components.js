@@ -1,9 +1,11 @@
 import { highlightColor, highlightBorderWidth } from './constants';
-import * as dom from './dom';
+import { getNodeRect, getViewportDimensions, getWindowHeight } from './dom';
+import { withPrefix } from './util';
 
 export function container (focusables) {
   const el = document.createElement('div');
-  el.className = dom.className('container');
+  el.id = withPrefix('container');
+  el.className = withPrefix('container');
   Object.assign(el.style, {
     position: 'absolute',
     top: 0,
@@ -20,7 +22,7 @@ export function container (focusables) {
 function background (focusables) {
   const masks = Object.keys(focusables).map(function (key) {
     const focusable = focusables[key];
-    const rect = dom.getNodeRect(focusable.node);
+    const rect = getNodeRect(focusable.node);
 
     return `<rect
       x="${rect.left}"
@@ -31,10 +33,10 @@ function background (focusables) {
     />`;
   }).join('');
 
-  const width = dom.getViewportDimensions().width;
-  const height = dom.getWindowHeight();
+  const width = getViewportDimensions().width;
+  const height = getWindowHeight();
   const el = document.createElement('div');
-  el.className = dom.className('background');
+  el.className = withPrefix('background');
   el.innerHTML = (
     `<svg width="${width}" height="${height}">,
       <defs>,
@@ -56,7 +58,7 @@ function highlights (focusables) {
     .reduce(reduceHighlightsFragment, document.createDocumentFragment());
 
   const containerEl = document.createElement('div');
-  containerEl.className = dom.className('highlights');
+  containerEl.className = withPrefix('highlights');
   containerEl.appendChild(highlightsFragment);
   return containerEl;
 }
@@ -70,8 +72,8 @@ export function reduceHighlightsFragment (fragment, focusable) {
 
 function highlight (node) {
   const el = document.createElement('div');
-  el.className = dom.className('highlight');
-  const rect = dom.getNodeRect(node);
+  el.className = withPrefix('highlight');
+  const rect = getNodeRect(node);
 
   Object.assign(el.style, {
     boxSizing: 'content-box',
@@ -89,7 +91,7 @@ function highlight (node) {
 const labelSize = 24;
 function label (identifier) {
   const el = document.createElement('div');
-  el.className = dom.className('label');
+  el.className = withPrefix('label');
   Object.assign(el.style, {
     backgroundColor: highlightColor,
     borderRadius: '0 0 3px 3px',
@@ -114,7 +116,7 @@ function label (identifier) {
 
 function labelArrow () {
   const el = document.createElement('div');
-  el.className = dom.className('arrow');
+  el.className = withPrefix('arrow');
   Object.assign(el.style, {
     borderLeft: `solid ${labelSize / 2}px transparent`,
     borderRight: `solid ${labelSize / 2}px transparent`,

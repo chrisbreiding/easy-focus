@@ -12,10 +12,6 @@ export function isHigher (aRect, bRect) {
   return aRect.top < bRect.top;
 }
 
-export function className (base) {
-  return `__easy-focus__${base}`;
-}
-
 export function hasDimensions (nodeRect) {
   return !!nodeRect.width && !!nodeRect.height;
 }
