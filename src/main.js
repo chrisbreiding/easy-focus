@@ -4,27 +4,29 @@ import { getFocusableNodes, getFocusablesAtOffset, inFocusableRange } from './fo
 import { actions, noncollidingIdentifiers } from './identifiers';
 import { withModifier, withPrefix } from './util';
 
-let close;
+let identifiers;
 
 function onMessage (message) {
-  if (message.type === 'close' && close) close();
   if (message.type === 'commands') onReceiveCommands(message.commands);
+  if (message.type === 'start') run(message.tabId);
 }
 
 function onReceiveCommands (commands) {
-  close = run(noncollidingIdentifiers(commands));
+  identifiers = noncollidingIdentifiers(commands);
 }
 
-function run (identifiers) {
+function run (tabId) {
+  let closing = false;
+
+  let containerEl = document.getElementById(withPrefix('container'));
   const focusableNodes = getFocusableNodes(identifiers);
-  if (!focusableNodes.length) {
-    close();
+  if (containerEl || !focusableNodes.length) {
+    teardown();
     return;
   }
 
   let page = 0;
   let focusables;
-  let containerEl;
 
   function render () {
     const offset = page * identifiers.length;
@@ -46,23 +48,13 @@ function run (identifiers) {
     render();
   }
 
-  // if the extension gets reloaded and loses its state, the container
-  // from a previous run could be left because this script
-  // didn't get a chance to 'close'
-  let existingContainer = document.getElementById(withPrefix('container'));
-  if (existingContainer) {
-    document.body.removeChild(existingContainer);
-  }
-
   render(page);
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
   window.addEventListener('unload', close);
-  chrome.runtime.sendMessage({ running: true });
 
   const ESC = 27;
   let focusableSelected = null;
-  let closing = false;
   function onKeyDown (e) {
     if (closing || withModifier(e) || e.which === ESC) return;
     const focusable = focusables[e.which];
@@ -74,12 +66,12 @@ function run (identifiers) {
 
   function onKeyUp (e) {
     if (closing || withModifier(e)) return;
-    if (e.which === ESC) return close();
+    if (e.which === ESC) return teardown();
 
     const focusable = focusables[e.which];
     if (focusable && focusableSelected === focusable) {
       dom.focusNode(focusable.node);
-      close();
+      teardown();
     }
 
     const action = actions[e.which];
@@ -88,7 +80,7 @@ function run (identifiers) {
     }
   }
 
-  function close () {
+  function teardown () {
     if (closing) return;
 
     closing = true;
@@ -97,11 +89,12 @@ function run (identifiers) {
     }
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('keyup', onKeyUp);
-    chrome.runtime.onMessage.removeListener(onMessage);
-    chrome.runtime.sendMessage({ close: true });
   }
 
-  return close;
+  function close () {
+    teardown();
+    chrome.runtime.sendMessage({ close: true, tabId });
+  }
 }
 
 chrome.runtime.onMessage.addListener(onMessage);
