@@ -27,7 +27,7 @@ function filterFocusableNodes (viewport, scroll, node) {
   return (
     !node.disabled &&
     dom.hasDimensions(nodeRect) &&
-    dom.onScreen(nodeRect, viewport, scroll) &&
+    dom.intersectsScreen(nodeRect, viewport, scroll) &&
     dom.isVisible(node)
   );
 }

@@ -16,17 +16,19 @@ function onReceiveCommands (commands) {
 }
 
 function run (tabId) {
+  if (document.getElementById(withPrefix('container'))) return; // already running
+
   let closing = false;
 
-  let containerEl = document.getElementById(withPrefix('container'));
   const focusableNodes = getFocusableNodes(identifiers);
-  if (containerEl || !focusableNodes.length) {
+  if (!focusableNodes.length) {
     teardown();
     return;
   }
 
   let page = 0;
   let focusables;
+  let containerEl;
 
   function render () {
     const offset = page * identifiers.length;
@@ -44,11 +46,12 @@ function run (tabId) {
     } else {
       return;
     }
-    document.body.removeChild(containerEl);
+    dom.removeNode(containerEl);
+    containerEl = null;
     render();
   }
 
-  render(page);
+  render();
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
   window.addEventListener('unload', close);
@@ -84,8 +87,9 @@ function run (tabId) {
     if (closing) return;
 
     closing = true;
-    if (containerEl && containerEl.parentNode === document.body) {
-      document.body.removeChild(containerEl);
+    if (containerEl) {
+      dom.removeNode(containerEl);
+      containerEl = null;
     }
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('keyup', onKeyUp);
@@ -103,11 +107,9 @@ chrome.runtime.onMessage.addListener(onMessage);
 /**
   TODO
   1.0
-  - smart label placement
-    * ensure label is on screen
-    * try to ensure label doesn't overlap other tooltips
+  - use shadow dom and separate css
   - add readme
-  - banner at top with instructions
+  - instructions
     * "Hit letter to focus field"
     * "Hit ESC to exit"
     * pagination indicators
@@ -117,4 +119,8 @@ chrome.runtime.onMessage.addListener(onMessage);
   - filter mode
     * after a shortcut trigger
     * can start typing and filter down focusables based on text
+  - vary highlight colors so it's easier to see which label
+    belongs to which highlight
+  - try to ensure labels don't overlap other highlights
+
 */

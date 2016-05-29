@@ -34,6 +34,7 @@
             type: 'commands',
             commands: [{ shortcut: '' }, { shortcut: 'Alt+Shift+F' }],
           });
+          win.chrome.__sendMessageToContent({ type: 'start' });
         });
       });
   }

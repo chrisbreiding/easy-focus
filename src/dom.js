@@ -20,12 +20,21 @@ export function isVisible (node) {
   return window.getComputedStyle(node).visibility !== 'hidden';
 }
 
-export function onScreen (nodeRect, viewport, scroll) {
+export function intersectsScreen (nodeRect, viewport, scroll) {
+  return intersect(nodeRect, {
+    left: scroll.left,
+    top: scroll.top,
+    width: viewport.width,
+    height: viewport.height,
+  });
+}
+
+export function isFullyOnScreen (nodeRect, viewport, scroll) {
   return (
-    nodeRect.left + nodeRect.width > scroll.left &&
-    nodeRect.left < viewport.width + scroll.left &&
-    nodeRect.top + nodeRect.height > scroll.top &&
-    nodeRect.top < viewport.height + scroll.top
+    nodeRect.left > scroll.left &&
+    nodeRect.left + nodeRect.width < viewport.width + scroll.left &&
+    nodeRect.top > scroll.top &&
+    nodeRect.top + nodeRect.height < viewport.height + scroll.top
   );
 }
 
@@ -74,4 +83,17 @@ export function focusNode (node) {
   } catch (e) {
     /* not a text input, this is fine */
   }
+}
+
+export function removeNode (node) {
+  if (node.parentNode) {
+    node.parentNode.removeChild(node);
+  }
+}
+
+export function intersect (rectA, rectB) {
+  return !(rectB.left > rectA.left + rectA.width ||
+           rectB.left + rectB.width < rectA.left ||
+           rectB.top > rectA.top + rectA.height ||
+           rectB.top + rectB.height < rectA.top);
 }
