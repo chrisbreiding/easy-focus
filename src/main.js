@@ -1,23 +1,27 @@
 import { container } from './components';
+import * as constants from './constants';
 import * as dom from './dom';
 import { getFocusableNodes, getFocusablesAtOffset, inFocusableRange } from './focusables';
 import { actions, noncollidingIdentifiers } from './identifiers';
-import { withModifier, withPrefix } from './util';
-
+import { getStyles, withModifier, withPrefix } from './util';
 let identifiers;
 
 function onMessage (message) {
   if (message.type === 'commands') onReceiveCommands(message.commands);
-  if (message.type === 'start') run(message.tabId);
+  if (message.type === 'start') start(message.tabId);
 }
 
 function onReceiveCommands (commands) {
   identifiers = noncollidingIdentifiers(commands);
 }
 
-function run (tabId) {
+function start (tabId) {
   if (document.getElementById(withPrefix('container'))) return; // already running
 
+  getStyles(constants).then((styles) => run(tabId, styles));
+}
+
+function run (tabId, styles) {
   let closing = false;
 
   const focusableNodes = getFocusableNodes(identifiers);
@@ -33,7 +37,7 @@ function run (tabId) {
   function render () {
     const offset = page * identifiers.length;
     focusables = getFocusablesAtOffset(focusableNodes, identifiers, offset);
-    containerEl = container(focusables);
+    containerEl = container(styles, focusables);
     document.body.appendChild(containerEl);
   }
 
@@ -107,13 +111,13 @@ chrome.runtime.onMessage.addListener(onMessage);
 /**
   TODO
   1.0
-  - use shadow dom and separate css
   - add readme
   - instructions
     * "Hit letter to focus field"
     * "Hit ESC to exit"
     * pagination indicators
     * placement?
+  - preventDefault on spacebar? stop scrolling?
   - package and deploy
   1.1
   - filter mode

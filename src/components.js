@@ -1,4 +1,4 @@
-import { highlightColor, highlightBorderWidth } from './constants';
+import { highlightBorderWidth } from './constants';
 import {
   getNodeRect,
   getScrollOffset,
@@ -9,20 +9,13 @@ import {
 } from './dom';
 import { withPrefix } from './util';
 
-export function container (focusables) {
+export function container (styles, focusables) {
   const el = document.createElement('div');
   el.id = withPrefix('container');
-  el.className = withPrefix('container');
-  Object.assign(el.style, {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    zIndex: 999999,
-  });
-  el.appendChild(background(focusables));
-  el.appendChild(highlights(focusables));
+  const shadowRoot = el.createShadowRoot();
+  shadowRoot.innerHTML = styles;
+  shadowRoot.appendChild(background(focusables));
+  shadowRoot.appendChild(highlights(focusables));
   return el;
 }
 
@@ -43,16 +36,16 @@ function background (focusables) {
   const width = getViewportDimensions().width;
   const height = getWindowHeight();
   const el = document.createElement('div');
-  el.className = withPrefix('background');
+  el.className = 'background';
   el.innerHTML = (
-    `<svg width="${width}" height="${height}">,
-      <defs>,
-        <mask id="mask" x="0" y="0">,
-          <rect x="0" y="0" width="100%" height="100%" fill="white" />,
-          ${masks},
-        </mask>,
-      </defs>,
-      <rect x="0" y="0" width="100%" height="100%" fill="rgba(0, 0, 0, 0.6)" mask="url(#mask)" />,
+    `<svg width="${width}" height="${height}">
+      <defs>
+        <mask id="mask" x="0" y="0">
+          <rect x="0" y="0" width="100%" height="100%" fill="white" />
+          ${masks}
+        </mask>
+      </defs>
+      <rect x="0" y="0" width="100%" height="100%" fill="rgba(0, 0, 0, 0.6)" mask="url(#mask)" />
     </svg>`
   );
   return el;
@@ -69,7 +62,7 @@ function highlights (focusables) {
   });
 
   const containerEl = document.createElement('div');
-  containerEl.className = withPrefix('highlights');
+  containerEl.className = 'highlights';
   containerEl.appendChild(highlightsFragment);
   containerEl.appendChild(labels.fragment);
   return containerEl;
@@ -82,18 +75,14 @@ export function reduceHighlightsFragment (fragment, focusable) {
 
 function highlight (node) {
   const el = document.createElement('div');
-  el.className = withPrefix('highlight');
+  el.className = 'highlight';
   const rect = getNodeRect(node);
 
   Object.assign(el.style, {
-    boxSizing: 'content-box',
-    boxShadow: '0 0 5px rgba(0, 0, 0, 0.8)',
-    position: 'absolute',
     top: `${rect.top - highlightBorderWidth}px`,
     left: `${rect.left - highlightBorderWidth}px`,
     width: `${rect.width}px`,
     height: `${rect.height}px`,
-    border: `solid ${highlightBorderWidth}px ${highlightColor}`,
   });
   return el;
 }
@@ -110,18 +99,16 @@ export function reduceLabelsFragment ({ previousLabelRects, fragment }, focusabl
 const labelSize = 24;
 function label ({ node, identifier }, previousLabelRects) {
   const el = document.createElement('div');
-  el.className = withPrefix('label');
   const { rect, side } = labelRect(node, previousLabelRects);
+  el.className = `label ${sides[side]}`;
 
   Object.assign(el.style, {
-    position: 'absolute',
     left: `${rect.left}px`,
     top: `${rect.top}px`,
     width: `${rect.width}px`,
     height: `${rect.height}px`,
   });
   el.appendChild(labelText(identifier.letter, side));
-  el.appendChild(labelArrow(side));
   return { el, rect };
 }
 
@@ -205,29 +192,21 @@ function next ({ side, rect }, highlightRect) {
 const variance = 5;
 function nextRect (highlightRect) {
   return {
-    bottom: (labelRect) => ({
+    bottom: (labelRect) => Object.assign(labelRect, {
       top: highlightRect.top + highlightRect.height + highlightBorderWidth,
       left: labelRect.left + variance,
-      width: labelSize,
-      height: labelSize * 1.5,
     }),
-    right: (labelRect) => ({
+    right: (labelRect) => Object.assign(labelRect, {
       top: labelRect.top - variance,
       left: highlightRect.left + highlightRect.width + highlightBorderWidth,
-      width: labelSize * 1.5,
-      height: labelSize,
     }),
-    top: (labelRect) => ({
+    top: (labelRect) => Object.assign(labelRect, {
       top: highlightRect.top - labelSize * 1.5 - highlightBorderWidth,
       left: labelRect.left - variance,
-      width: labelSize,
-      height: labelSize * 1.5,
     }),
-    left: (labelRect) => ({
+    left: (labelRect) => Object.assign(labelRect, {
       top: labelRect.top + variance,
       left: highlightRect.left - labelSize * 1.5 - highlightBorderWidth,
-      width: labelSize * 1.5,
-      height: labelSize,
     }),
     end: (labelRect) => labelRect,
   };
@@ -242,82 +221,9 @@ function overLimit (highlightRect) {
   };
 }
 
-const textStyles = {
-  bottom: {
-    borderRadius: '0 0 3px 3px',
-    bottom: 0,
-  },
-  right: {
-    borderRadius: '0 3px 3px 0',
-    right: 0,
-  },
-  top: {
-    borderRadius: '3px 3px 0 0',
-    top: 0,
-  },
-  left: {
-    borderRadius: '3px 0 0 3px',
-    left: 0,
-  },
-};
-
-function labelText (text, side) {
+function labelText (text) {
   const el = document.createElement('div');
-  el.innerText = text;
-  Object.assign(el.style, textStyles[sides[side]], {
-    backgroundColor: highlightColor,
-    boxShadow: '0 0 5px rgba(0, 0, 0, 0.8)',
-    boxSizing: 'content-box',
-    color: '#333',
-    fontFamily: 'monospace',
-    width: `${labelSize}px`,
-    height: `${labelSize}px`,
-    position: 'absolute',
-    lineHeight: `${labelSize}px`,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-  });
-  return el;
-}
-
-const arrowStyles = {
-  bottom: {
-    borderLeft: `solid ${labelSize / 2}px transparent`,
-    borderRight: `solid ${labelSize / 2}px transparent`,
-    borderBottom: `solid ${labelSize / 2}px ${highlightColor}`,
-    top: 0,
-    left: 0,
-  },
-  right: {
-    borderTop: `solid ${labelSize / 2}px transparent`,
-    borderBottom: `solid ${labelSize / 2}px transparent`,
-    borderRight: `solid ${labelSize / 2}px ${highlightColor}`,
-    top: 0,
-    left: 0,
-  },
-  top: {
-    borderLeft: `solid ${labelSize / 2}px transparent`,
-    borderRight: `solid ${labelSize / 2}px transparent`,
-    borderTop: `solid ${labelSize / 2}px ${highlightColor}`,
-    bottom: 0,
-    left: 0,
-  },
-  left: {
-    borderTop: `solid ${labelSize / 2}px transparent`,
-    borderBottom: `solid ${labelSize / 2}px transparent`,
-    borderLeft: `solid ${labelSize / 2}px ${highlightColor}`,
-    top: 0,
-    right: 0,
-  },
-};
-
-function labelArrow (side) {
-  const el = document.createElement('div');
-  el.className = withPrefix('arrow');
-  Object.assign(el.style, arrowStyles[sides[side]], {
-    position: 'absolute',
-    width: 0,
-    height: 0,
-  });
+  el.className = 'text';
+  el.textContent = text;
   return el;
 }
