@@ -1,4 +1,4 @@
-export function getStyles ({ highlightBorderWidth, labelSize }) {
+function getStyles ({ highlightBorderWidth, labelSize }) {
   return fetch(chrome.extension.getURL('styles.css')).then(function (result) {
     return result.text();
   }).then(function (content) {
@@ -17,14 +17,21 @@ export function getStyles ({ highlightBorderWidth, labelSize }) {
   });
 }
 
-export function partial (func, ...partialArgs) {
+function partial (func, ...partialArgs) {
   return (...restArgs) => func(...partialArgs.concat(restArgs));
 }
 
-export function withModifier (e) {
+function withModifier (e) {
   return e.shiftKey || e.altKey || e.ctrlKey || e.metaKey;
 }
 
-export function withPrefix (base) {
+function withPrefix (base) {
   return `__easy-focus__${base}`;
+}
+
+export {
+  getStyles,
+  partial,
+  withModifier,
+  withPrefix,
 }

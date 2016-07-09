@@ -1,93 +1,20 @@
-import { highlightBorderWidth } from './constants';
+import { highlightBorderWidth } from '../constants';
 import {
   getNodeRect,
   getScrollOffset,
   getViewportDimensions,
-  getWindowHeight,
   intersect,
   isFullyOnScreen,
-} from './dom';
-import { withPrefix } from './util';
+} from '../dom';
 
-export function container (styles, focusables) {
-  const el = document.createElement('div');
-  el.id = withPrefix('container');
-  const shadowRoot = el.createShadowRoot();
-  shadowRoot.innerHTML = styles;
-  shadowRoot.appendChild(background(focusables));
-  shadowRoot.appendChild(highlights(focusables));
-  return el;
-}
-
-function background (focusables) {
-  const masks = Object.keys(focusables).map(function (key) {
-    const focusable = focusables[key];
-    const rect = getNodeRect(focusable.node);
-
-    return `<rect
-      x="${rect.left}"
-      y="${rect.top}"
-      width="${rect.width}"
-      height="${rect.height}"
-      fill="black"
-    />`;
-  }).join('');
-
-  const width = getViewportDimensions().width;
-  const height = getWindowHeight();
-  const el = document.createElement('div');
-  el.className = 'background';
-  el.innerHTML = (
-    `<svg width="${width}" height="${height}">
-      <defs>
-        <mask id="mask" x="0" y="0">
-          <rect x="0" y="0" width="100%" height="100%" fill="white" />
-          ${masks}
-        </mask>
-      </defs>
-      <rect x="0" y="0" width="100%" height="100%" fill="rgba(0, 0, 0, 0.6)" mask="url(#mask)" />
-    </svg>`
-  );
-  return el;
-}
-
-function highlights (focusables) {
-  const highlights = Object.keys(focusables)
-    .map((key) => focusables[key])
-    .reverse()
-  const highlightsFragment = highlights.reduce(reduceHighlightsFragment, document.createDocumentFragment());
-  const labels = highlights.reduce(reduceLabelsFragment, {
+export default function labels (highlights) {
+  return highlights.reduce(reduceLabelsFragment, {
     previousLabelRects: [],
     fragment: document.createDocumentFragment(),
-  });
-
-  const containerEl = document.createElement('div');
-  containerEl.className = 'highlights';
-  containerEl.appendChild(highlightsFragment);
-  containerEl.appendChild(labels.fragment);
-  return containerEl;
+  }).fragment;
 }
 
-export function reduceHighlightsFragment (fragment, focusable) {
-  fragment.appendChild(highlight(focusable.node));
-  return fragment;
-}
-
-function highlight (node) {
-  const el = document.createElement('div');
-  el.className = 'highlight';
-  const rect = getNodeRect(node);
-
-  Object.assign(el.style, {
-    top: `${rect.top - highlightBorderWidth}px`,
-    left: `${rect.left - highlightBorderWidth}px`,
-    width: `${rect.width}px`,
-    height: `${rect.height}px`,
-  });
-  return el;
-}
-
-export function reduceLabelsFragment ({ previousLabelRects, fragment }, focusable) {
+function reduceLabelsFragment ({ previousLabelRects, fragment }, focusable) {
   const theLabel = label(focusable, previousLabelRects);
   fragment.appendChild(theLabel.el);
   return {

@@ -1,26 +1,26 @@
 const significanceFactor = 15;
 
-export function isHigherThanLeft (aRect, bRect) {
+function isHigherThanLeft (aRect, bRect) {
   return (Math.abs(bRect.left - aRect.left) < significanceFactor) && isHigher(aRect, bRect);
 }
 
-export function isFartherLeftThanHigh (aRect, bRect) {
+function isFartherLeftThanHigh (aRect, bRect) {
   return (Math.abs(bRect.top - aRect.top) < significanceFactor) && aRect.left < bRect.left;
 }
 
-export function isHigher (aRect, bRect) {
+function isHigher (aRect, bRect) {
   return aRect.top < bRect.top;
 }
 
-export function hasDimensions (nodeRect) {
+function hasDimensions (nodeRect) {
   return !!nodeRect.width && !!nodeRect.height;
 }
 
-export function isVisible (node) {
+function isVisible (node) {
   return window.getComputedStyle(node).visibility !== 'hidden';
 }
 
-export function intersectsScreen (nodeRect, viewport, scroll) {
+function intersectsScreen (nodeRect, viewport, scroll) {
   return intersect(nodeRect, {
     left: scroll.left,
     top: scroll.top,
@@ -29,7 +29,7 @@ export function intersectsScreen (nodeRect, viewport, scroll) {
   });
 }
 
-export function isFullyOnScreen (nodeRect, viewport, scroll) {
+function isFullyOnScreen (nodeRect, viewport, scroll) {
   return (
     nodeRect.left > scroll.left &&
     nodeRect.left + nodeRect.width < viewport.width + scroll.left &&
@@ -38,21 +38,21 @@ export function isFullyOnScreen (nodeRect, viewport, scroll) {
   );
 }
 
-export function getViewportDimensions () {
+function getViewportDimensions () {
   return {
     width: window.innerWidth,
     height: window.innerHeight,
   };
 }
 
-export function getScrollOffset () {
+function getScrollOffset () {
   return {
     left: window.scrollX,
     top: window.scrollY,
   };
 }
 
-export function getWindowHeight () {
+function getWindowHeight () {
   const body = document.body;
   const html = document.documentElement;
 
@@ -65,7 +65,7 @@ export function getWindowHeight () {
   );
 }
 
-export function getNodeRect (node) {
+function getNodeRect (node) {
   const rect = node.getBoundingClientRect();
   const scroll = getScrollOffset();
   return {
@@ -76,7 +76,7 @@ export function getNodeRect (node) {
   };
 }
 
-export function focusNode (node) {
+function focusNode (node) {
   node.focus();
   try {
     node.setSelectionRange(node.value.length, node.value.length);
@@ -85,15 +85,32 @@ export function focusNode (node) {
   }
 }
 
-export function removeNode (node) {
+function removeNode (node) {
   if (node.parentNode) {
     node.parentNode.removeChild(node);
   }
 }
 
-export function intersect (rectA, rectB) {
+function intersect (rectA, rectB) {
   return !(rectB.left > rectA.left + rectA.width ||
            rectB.left + rectB.width < rectA.left ||
            rectB.top > rectA.top + rectA.height ||
            rectB.top + rectB.height < rectA.top);
+}
+
+export {
+  isHigherThanLeft,
+  isFartherLeftThanHigh,
+  isHigher,
+  hasDimensions,
+  isVisible,
+  intersectsScreen,
+  isFullyOnScreen,
+  getViewportDimensions,
+  getScrollOffset,
+  getWindowHeight,
+  getNodeRect,
+  focusNode,
+  removeNode,
+  intersect,
 }

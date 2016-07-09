@@ -1,4 +1,4 @@
-import { container } from './components';
+import container from './components/container';
 import * as constants from './constants';
 import * as dom from './dom';
 import { getFocusableNodes, getFocusablesAtOffset, inFocusableRange } from './focusables';
@@ -111,20 +111,21 @@ chrome.runtime.onMessage.addListener(onMessage);
 /**
   TODO
   1.0
-  - add readme
   - instructions
+    * (?) in corner of screen
+      > opens modal with instructions when clicked or user types '/'
     * "Hit letter to focus field"
     * "Hit ESC to exit"
-    * pagination indicators
-    * placement?
-  - preventDefault on spacebar? stop scrolling?
+    * "Page up with 'j'", "Page down with 'k'"
+  - vary highlight colors so it's easier to see which label
+    belongs to which highlight
+  - add readme
   - package and deploy
   1.1
+  - stop scrolling? how? is setting overflow: hidden on html, body enough?
   - filter mode
     * after a shortcut trigger
     * can start typing and filter down focusables based on text
-  - vary highlight colors so it's easier to see which label
-    belongs to which highlight
   - try to ensure labels don't overlap other highlights
 
 */

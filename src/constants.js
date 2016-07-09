@@ -1,2 +1,7 @@
-export const highlightBorderWidth = 3;
-export const labelSize = 24;
+const highlightBorderWidth = 3;
+const labelSize = 24;
+
+export {
+  highlightBorderWidth,
+  labelSize,
+}
