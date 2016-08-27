@@ -7,7 +7,7 @@ import {
   isFullyOnScreen,
 } from '../dom';
 
-export default function labels (highlights) {
+function labels (highlights) {
   return highlights.reduce(reduceLabelsFragment, {
     previousLabelRects: [],
     fragment: document.createDocumentFragment(),
@@ -154,3 +154,5 @@ function labelText (text) {
   el.textContent = text;
   return el;
 }
+
+export default labels

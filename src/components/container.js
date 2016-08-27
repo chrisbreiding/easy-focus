@@ -2,7 +2,7 @@ import { withPrefix } from '../util';
 import background from './background'
 import highlights from './highlights'
 
-export default function container (styles, focusables) {
+function createContainer (styles, focusables) {
   const el = document.createElement('div');
   el.id = withPrefix('container');
   const shadowRoot = el.createShadowRoot();
@@ -11,3 +11,5 @@ export default function container (styles, focusables) {
   shadowRoot.appendChild(highlights(focusables));
   return el;
 }
+
+export default createContainer

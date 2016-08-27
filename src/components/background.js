@@ -1,6 +1,6 @@
 import { getNodeRect, getViewportDimensions, getWindowHeight } from '../dom';
 
-export default function backgrounds (focusables) {
+function background (focusables) {
   const masks = Object.keys(focusables).map(function (key) {
     const focusable = focusables[key];
     const rect = getNodeRect(focusable.node);
@@ -31,3 +31,5 @@ export default function backgrounds (focusables) {
   );
   return el;
 }
+
+export default background

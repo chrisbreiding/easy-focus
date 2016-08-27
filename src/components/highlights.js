@@ -2,7 +2,7 @@ import { highlightBorderWidth } from '../constants';
 import { getNodeRect } from '../dom';
 import labels from './labels'
 
-export default function highlights (focusables) {
+function highlights (focusables) {
   const highlights = Object.keys(focusables)
     .map((key) => focusables[key])
     .reverse()
@@ -33,3 +33,5 @@ function highlight (node) {
   });
   return el;
 }
+
+export default highlights
