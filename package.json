@@ -2,7 +2,7 @@
   "name": "easy-focus",
   "private": true,
   "scripts": {
-    "start": "concurrent --kill-others --names 'server:,watch: ' --prefix '{name}' 'npm run server' 'npm run watch'",
+    "start": "concurrently --kill-others --names 'server:,watch: ' --prefix '{name}' 'npm run server' 'npm run watch'",
     "server": "http-server",
     "watch": "watchify -v -t [ babelify --presets [ es2015 ] ] src/main.js -o chrome/content.js"
   },
