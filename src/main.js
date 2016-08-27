@@ -1,9 +1,9 @@
-import container from './components/container';
+import createContainer from './components/container';
 import * as constants from './constants';
 import * as dom from './dom';
 import { getFocusableNodes, getFocusablesAtOffset, inFocusableRange } from './focusables';
 import { actions, noncollidingIdentifiers } from './identifiers';
-import { getStyles, withModifier, withPrefix } from './util';
+import { addListener, getStyles, removeListeners, withModifier, withPrefix } from './util';
 let identifiers;
 
 function onMessage (message) {
@@ -32,13 +32,13 @@ function run (tabId, styles) {
 
   let page = 0;
   let focusables;
-  let containerEl;
+  let container;
 
   function render () {
     const offset = page * identifiers.length;
     focusables = getFocusablesAtOffset(focusableNodes, identifiers, offset);
-    containerEl = container(styles, focusables);
-    document.body.appendChild(containerEl);
+    container = createContainer(styles, focusables);
+    document.body.appendChild(container.el);
   }
 
   function paginate (direction) {
@@ -50,14 +50,15 @@ function run (tabId, styles) {
     } else {
       return;
     }
-    dom.removeNode(containerEl);
-    containerEl = null;
+    dom.removeNode(container.el);
+    container.el = null;
     render();
   }
 
   render();
-  document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('keyup', onKeyUp);
+
+  addListener(document, 'keydown', onKeyDown);
+  addListener(document, 'keyup', onKeyUp);
   window.addEventListener('unload', close);
 
   const ESC = 27;
@@ -91,12 +92,11 @@ function run (tabId, styles) {
     if (closing) return;
 
     closing = true;
-    if (containerEl) {
-      dom.removeNode(containerEl);
-      containerEl = null;
+    if (container.el) {
+      dom.removeNode(container.el);
+      container.el = null;
     }
-    document.removeEventListener('keydown', onKeyDown);
-    document.removeEventListener('keyup', onKeyUp);
+    removeListeners()
   }
 
   function close () {

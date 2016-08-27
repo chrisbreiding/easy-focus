@@ -9,7 +9,7 @@ function createContainer (styles, focusables) {
   shadowRoot.innerHTML = styles;
   shadowRoot.appendChild(background(focusables));
   shadowRoot.appendChild(highlights(focusables));
-  return el;
+  return { el, shadowRoot };
 }
 
 export default createContainer

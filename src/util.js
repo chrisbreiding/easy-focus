@@ -17,6 +17,18 @@ function getStyles ({ highlightBorderWidth, labelSize }) {
   });
 }
 
+const listeners = []
+function addListener (target, event, handler) {
+  target.addEventListener(event, handler)
+  listeners.push({ target, event, handler })
+}
+
+function removeListeners () {
+  listeners.forEach(({ target, event, handler }) => {
+    target.removeEventListener(event, handler)
+  })
+}
+
 function partial (func, ...partialArgs) {
   return (...restArgs) => func(...partialArgs.concat(restArgs));
 }
@@ -30,8 +42,10 @@ function withPrefix (base) {
 }
 
 export {
+  addListener,
   getStyles,
   partial,
+  removeListeners,
   withModifier,
   withPrefix,
 }
